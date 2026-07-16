@@ -1,0 +1,19 @@
+{
+  "name": "triesta-obuchenie",
+  "version": "1.0.0",
+  "private": true,
+  "description": "300 Триста — Академия за обучения на персонала",
+  "engines": {
+    "node": ">=22.5"
+  },
+  "scripts": {
+    "install:all": "npm --prefix server install && npm --prefix client install",
+    "seed": "npm --prefix server run seed",
+    "dev": "concurrently -k -n СЪРВЪР,САЙТ -c yellow,cyan \"npm --prefix server start\" \"npm --prefix client run dev\"",
+    "build": "npm install --prefix server && npm install --prefix client && npm --prefix client run build",
+    "start": "npm --prefix server start"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

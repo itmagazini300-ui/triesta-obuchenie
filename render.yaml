@@ -1,0 +1,16 @@
+# Конфигурация за хостинг в Render (https://render.com)
+# В Render: New +  →  Blueprint  →  избери този репозитори.
+services:
+  - type: web
+    name: triesta-obuchenie
+    runtime: node
+    plan: free
+    buildCommand: npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_VERSION
+        value: "24"
+      - key: COOKIE_SECURE
+        value: "1"
+      - key: JWT_SECRET
+        generateValue: true
