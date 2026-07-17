@@ -28,6 +28,7 @@ export default function ManagerEmployee() {
           <div className="muted" style={{ fontSize: 13, marginTop: 8, display: 'flex', gap: 18, flexWrap: 'wrap' }}>
             <span><Icon name="users" size={14} /> Ментор: <b style={{ color: 'var(--ink)' }}>{e.mentor || '—'}</b></span>
             <span><Icon name="clock" size={14} /> От: <b style={{ color: 'var(--ink)' }}>{e.start_date || '—'}</b></span>
+            {e.disc_result && <span><Icon name="spark" size={14} /> DISC: <b style={{ color: 'var(--orange)' }}>{e.disc_result}</b></span>}
           </div>
         </div>
         <Ring percent={data.overall} size={104} label="ОБЩО" />

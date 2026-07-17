@@ -95,22 +95,28 @@ router.get('/modules/:id', (req, res) => {
   res.json({ module: m, category, questions });
 });
 
+function parseDuration(v) {
+  if (v == null || v === '') return null;
+  const n = Math.round(Number(v));
+  return Number.isFinite(n) && n > 0 ? n : null;
+}
+
 router.post('/modules', (req, res) => {
-  const { category_id, title, summary, content, video_url } = req.body || {};
+  const { category_id, title, summary, content, video_url, duration } = req.body || {};
   if (!category_id || !db.prepare('SELECT 1 FROM categories WHERE id = ?').get(Number(category_id)))
     return res.status(400).json({ error: 'Невалидна категория.' });
   if (!title?.trim()) return res.status(400).json({ error: 'Въведи заглавие на модула.' });
   const order = nextOrder('modules', 'category_id', Number(category_id));
-  const id = db.prepare('INSERT INTO modules (category_id, title, summary, content, video_url, order_index) VALUES (?, ?, ?, ?, ?, ?)')
-    .run(Number(category_id), title.trim(), (summary || '').trim(), content || '', (video_url || '').trim() || null, order).lastInsertRowid;
+  const id = db.prepare('INSERT INTO modules (category_id, title, summary, content, video_url, duration, order_index) VALUES (?, ?, ?, ?, ?, ?, ?)')
+    .run(Number(category_id), title.trim(), (summary || '').trim(), content || '', (video_url || '').trim() || null, parseDuration(duration), order).lastInsertRowid;
   res.json({ id });
 });
 
 router.put('/modules/:id', (req, res) => {
-  const { title, summary, content, video_url } = req.body || {};
+  const { title, summary, content, video_url, duration } = req.body || {};
   if (!title?.trim()) return res.status(400).json({ error: 'Въведи заглавие на модула.' });
-  const info = db.prepare('UPDATE modules SET title = ?, summary = ?, content = ?, video_url = ? WHERE id = ?')
-    .run(title.trim(), (summary || '').trim(), content || '', (video_url || '').trim() || null, Number(req.params.id));
+  const info = db.prepare('UPDATE modules SET title = ?, summary = ?, content = ?, video_url = ?, duration = ? WHERE id = ?')
+    .run(title.trim(), (summary || '').trim(), content || '', (video_url || '').trim() || null, parseDuration(duration), Number(req.params.id));
   if (info.changes === 0) return res.status(404).json({ error: 'Модулът не е намерен.' });
   res.json({ ok: true });
 });

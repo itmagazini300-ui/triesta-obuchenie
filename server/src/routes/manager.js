@@ -100,7 +100,7 @@ router.get('/mentors', (_req, res) => {
 // Детайл за конкретен служител (по модули)
 router.get('/employees/:id', (req, res) => {
   const e = db
-    .prepare("SELECT id, name, email, store, position, mentor, start_date FROM users WHERE id = ? AND role = 'employee'")
+    .prepare("SELECT id, name, email, store, position, mentor, start_date, disc_result FROM users WHERE id = ? AND role = 'employee'")
     .get(Number(req.params.id));
   if (!e) return res.status(404).json({ error: 'Служителят не е намерен.' });
 

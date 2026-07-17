@@ -1,6 +1,8 @@
 import { Router } from 'express';
 import { requireAuth } from '../auth.js';
+import { db } from '../db.js';
 import { getCatalog, getModule, markOpened, submitTest, moduleLocked } from '../progressCalc.js';
+import { DISC_STYLES, DISC_QUESTIONS, scoreDisc } from '../disc.js';
 
 const router = Router();
 router.use(requireAuth);
@@ -34,6 +36,32 @@ router.post('/modules/:id/submit', (req, res) => {
   const result = submitTest(req.user.id, id, req.body?.answers || {});
   if (result.error) return res.status(400).json(result);
   res.json(result);
+});
+
+// ── Приветствен екран ──
+router.post('/welcome-seen', (req, res) => {
+  db.prepare('UPDATE users SET seen_welcome = 1 WHERE id = ?').run(req.user.id);
+  res.json({ ok: true });
+});
+
+// ── DISC тест ──
+router.get('/disc', (req, res) => {
+  const u = db.prepare('SELECT disc_result, disc_taken_at FROM users WHERE id = ?').get(req.user.id);
+  res.json({
+    styles: DISC_STYLES,
+    questions: DISC_QUESTIONS,
+    result: u?.disc_result || null,
+    takenAt: u?.disc_taken_at || null,
+  });
+});
+
+router.post('/disc', (req, res) => {
+  const answers = req.body?.answers || {};
+  const answered = DISC_QUESTIONS.every((q) => answers[q.id]);
+  if (!answered) return res.status(400).json({ error: 'Отговори на всички въпроси.' });
+  const { scores, primary } = scoreDisc(answers);
+  db.prepare("UPDATE users SET disc_result = ?, disc_taken_at = datetime('now') WHERE id = ?").run(primary, req.user.id);
+  res.json({ scores, primary, styles: DISC_STYLES });
 });
 
 // Завършените категории = сертификати

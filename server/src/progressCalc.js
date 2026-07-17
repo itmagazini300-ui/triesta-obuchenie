@@ -27,7 +27,7 @@ export function getCatalog(userId) {
       .map((m) => {
         const p = progById.get(m.id) || { status: 'not_started', score: null };
         return {
-          id: m.id, title: m.title, summary: m.summary,
+          id: m.id, title: m.title, summary: m.summary, duration: m.duration ?? null,
           order_index: m.order_index,
           status: p.status, score: p.score ?? null,
           completed_at: p.completed_at ?? null,
@@ -100,7 +100,7 @@ export function getModule(userId, moduleId) {
   }
 
   return {
-    id: m.id, title: m.title, summary: m.summary, content: m.content, video_url: m.video_url,
+    id: m.id, title: m.title, summary: m.summary, content: m.content, video_url: m.video_url, duration: m.duration ?? null,
     category,
     questions,
     passScore: PASS_SCORE,

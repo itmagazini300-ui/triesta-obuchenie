@@ -321,7 +321,7 @@ export function seed() {
   db.exec("DELETE FROM sqlite_sequence WHERE name IN ('progress','questions','modules','categories','users')");
 
   const insCat = db.prepare('INSERT INTO categories (slug, title, icon, description, order_index) VALUES (?, ?, ?, ?, ?)');
-  const insMod = db.prepare('INSERT INTO modules (category_id, title, summary, content, order_index) VALUES (?, ?, ?, ?, ?)');
+  const insMod = db.prepare('INSERT INTO modules (category_id, title, summary, content, duration, order_index) VALUES (?, ?, ?, ?, ?, ?)');
   const insQ = db.prepare('INSERT INTO questions (module_id, text, options, correct_index, order_index) VALUES (?, ?, ?, ?, ?)');
 
   const modByKey = {}; // "slug#index" -> module id
@@ -329,7 +329,8 @@ export function seed() {
   CATEGORIES.forEach((cat, ci) => {
     const catId = insCat.run(cat.slug, cat.title, cat.icon, cat.description, ci).lastInsertRowid;
     cat.modules.forEach((m, mi) => {
-      const modId = insMod.run(catId, m.title, m.summary, m.content, mi).lastInsertRowid;
+      const duration = 2 + ((mi + ci) % 4); // примерно времетраене 2–5 мин
+      const modId = insMod.run(catId, m.title, m.summary, m.content, duration, mi).lastInsertRowid;
       modByKey[`${cat.slug}#${mi}`] = modId;
       m.questions.forEach((q, qi) => {
         insQ.run(modId, q.text, JSON.stringify(q.options), q.correct, qi);

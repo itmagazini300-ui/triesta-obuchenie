@@ -28,6 +28,9 @@ export function initSchema() {
       is_mentor     INTEGER NOT NULL DEFAULT 0,
       feedback_rating REAL,                              -- оценка от обучените (1–5)
       retention_rate  INTEGER,                           -- задържане на обучените след 3 месеца (%)
+      disc_result   TEXT,                                -- резултат от DISC теста: D | I | S | C
+      disc_taken_at TEXT,
+      seen_welcome  INTEGER NOT NULL DEFAULT 0,          -- видял ли е приветствения екран
       created_at    TEXT DEFAULT (datetime('now'))
     );
 
@@ -47,6 +50,7 @@ export function initSchema() {
       summary     TEXT,
       content     TEXT,
       video_url   TEXT,
+      duration    INTEGER,                               -- времетраене на видеото/урока в минути
       order_index INTEGER NOT NULL DEFAULT 0
     );
 
@@ -75,9 +79,15 @@ export function initSchema() {
 
 // Добавя нови колони към стари бази, без да губи данни.
 function migrate() {
-  const cols = db.prepare('PRAGMA table_info(users)').all().map((c) => c.name);
-  const add = (name, ddl) => { if (!cols.includes(name)) db.exec(`ALTER TABLE users ADD COLUMN ${ddl}`); };
-  add('is_mentor', 'is_mentor INTEGER NOT NULL DEFAULT 0');
-  add('feedback_rating', 'feedback_rating REAL');
-  add('retention_rate', 'retention_rate INTEGER');
+  const addCol = (table, name, ddl) => {
+    const cols = db.prepare(`PRAGMA table_info(${table})`).all().map((c) => c.name);
+    if (!cols.includes(name)) db.exec(`ALTER TABLE ${table} ADD COLUMN ${ddl}`);
+  };
+  addCol('users', 'is_mentor', 'is_mentor INTEGER NOT NULL DEFAULT 0');
+  addCol('users', 'feedback_rating', 'feedback_rating REAL');
+  addCol('users', 'retention_rate', 'retention_rate INTEGER');
+  addCol('users', 'disc_result', 'disc_result TEXT');
+  addCol('users', 'disc_taken_at', 'disc_taken_at TEXT');
+  addCol('users', 'seen_welcome', 'seen_welcome INTEGER NOT NULL DEFAULT 0');
+  addCol('modules', 'duration', 'duration INTEGER');
 }

@@ -49,7 +49,7 @@ export default function AdminCategory() {
 
       <div className="section-head">
         <div className="eyebrow">{modules.length} модула</div>
-        <button className="btn sm" onClick={() => { setErr(''); setEditing({ title: '', summary: '', content: '', video_url: '' }); }}>
+        <button className="btn sm" onClick={() => { setErr(''); setEditing({ title: '', summary: '', content: '', video_url: '', duration: '' }); }}>
           <Icon name="plus" size={17} /> Нов модул
         </button>
       </div>
@@ -70,7 +70,7 @@ export default function AdminCategory() {
             <div className="cnt">{m.questionCount} въпроса</div>
             <div className="admin-actions">
               <button className="icon-btn" title="Съдържание и тест" onClick={() => nav('/admin/module/' + m.id)}><Icon name="arrowr" size={18} /></button>
-              <button className="icon-btn" title="Бърза редакция" onClick={() => { setErr(''); setEditing({ id: m.id, title: m.title, summary: m.summary || '', content: m.content || '', video_url: m.video_url || '' }); }}><Icon name="edit" size={18} /></button>
+              <button className="icon-btn" title="Бърза редакция" onClick={() => { setErr(''); setEditing({ id: m.id, title: m.title, summary: m.summary || '', content: m.content || '', video_url: m.video_url || '', duration: m.duration ?? '' }); }}><Icon name="edit" size={18} /></button>
               <button className="icon-btn danger" title="Изтрий" onClick={() => remove(m)}><Icon name="trash" size={18} /></button>
             </div>
           </div>
@@ -92,9 +92,15 @@ export default function AdminCategory() {
             <textarea value={editing.content} onChange={(e) => setEditing({ ...editing, content: e.target.value })} placeholder="Текстът на урока. Празен ред разделя параграфите." />
             <div className="hint">Остави празен ред между параграфите за по-добро форматиране.</div>
           </div>
-          <div className="field">
-            <label>Линк към видео (по избор)</label>
-            <input value={editing.video_url} onChange={(e) => setEditing({ ...editing, video_url: e.target.value })} placeholder="https://…" />
+          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '0 16px' }}>
+            <div className="field">
+              <label>Линк към видео (по избор)</label>
+              <input value={editing.video_url} onChange={(e) => setEditing({ ...editing, video_url: e.target.value })} placeholder="YouTube, Vimeo или .mp4" />
+            </div>
+            <div className="field">
+              <label>Времетраене (мин)</label>
+              <input type="number" min="1" value={editing.duration} onChange={(e) => setEditing({ ...editing, duration: e.target.value })} placeholder="напр. 3" />
+            </div>
           </div>
           {err && <div className="err">{err}</div>}
           <div className="modal-foot">

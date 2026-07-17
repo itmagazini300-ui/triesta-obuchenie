@@ -16,6 +16,8 @@ import AdminCategory from './pages/AdminCategory.jsx';
 import AdminModule from './pages/AdminModule.jsx';
 import AdminUsers from './pages/AdminUsers.jsx';
 import Mentors from './pages/Mentors.jsx';
+import DiscTest from './pages/DiscTest.jsx';
+import Onboarding from './pages/Onboarding.jsx';
 
 const AuthCtx = createContext(null);
 export const useAuth = () => useContext(AuthCtx);
@@ -32,6 +34,7 @@ export default function App() {
     user,
     async login(email, password) { const d = await api.login(email, password); setUser(d.user); return d.user; },
     async logout() { await api.logout(); setUser(null); },
+    patchUser(fields) { setUser((u) => (u ? { ...u, ...fields } : u)); },
   };
 
   if (!ready) return <Loading text="Зареждане на Академията…" />;
@@ -46,6 +49,8 @@ export default function App() {
           <Route path="/module/:id" element={<ModuleView />} />
           <Route path="/module/:id/test" element={<TestView />} />
           <Route path="/certificates" element={<Certificates />} />
+          <Route path="/disc" element={<DiscTest />} />
+          <Route path="/onboarding" element={<Onboarding />} />
           <Route path="/manager" element={<ManagerHome />} />
           <Route path="/manager/employee/:id" element={<ManagerEmployee />} />
           <Route path="/mentors" element={<Mentors />} />
@@ -87,10 +92,13 @@ function Layout() {
               <NavLink to="/mentors" className={({ isActive }) => isActive ? 'active' : ''}>Ментори</NavLink>
               <NavLink to="/admin" className={({ isActive }) => isActive ? 'active' : ''}>Съдържание</NavLink>
               <NavLink to="/people" className={({ isActive }) => isActive ? 'active' : ''}>Хора</NavLink>
+              <NavLink to="/onboarding" className={({ isActive }) => isActive ? 'active' : ''}>Онбординг</NavLink>
             </>
           ) : (
             <>
               <NavLink to="/" end className={({ isActive }) => isActive ? 'active' : ''}>Моите обучения</NavLink>
+              <NavLink to="/disc" className={({ isActive }) => isActive ? 'active' : ''}>DISC тест</NavLink>
+              <NavLink to="/onboarding" className={({ isActive }) => isActive ? 'active' : ''}>Онбординг</NavLink>
               <NavLink to="/certificates" className={({ isActive }) => isActive ? 'active' : ''}>Сертификати</NavLink>
             </>
           )}

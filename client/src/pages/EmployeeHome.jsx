@@ -4,6 +4,7 @@ import { api } from '../api.js';
 import { useAuth } from '../App.jsx';
 import { Icon } from '../icons.jsx';
 import { Bar, Ring, Loading } from '../components.jsx';
+import Welcome from './Welcome.jsx';
 
 const LEVELS = [
   { n: 'Начинаещ', d: 'Базови модули и правила', range: '0–40%' },
@@ -24,6 +25,7 @@ export default function EmployeeHome() {
 
   return (
     <div className="wrap">
+      {!user.seen_welcome && <Welcome />}
       <div className="page-head">
         <div className="eyebrow">Моите обучения</div>
         <h1>Здравей, {user.name.split(' ')[0]}!</h1>

@@ -19,6 +19,9 @@ export const api = {
   openModule: (id) => request('/learn/modules/' + id + '/open', { method: 'POST' }),
   submitTest: (id, answers) => request('/learn/modules/' + id + '/submit', { method: 'POST', body: JSON.stringify({ answers }) }),
   certificates: () => request('/learn/certificates'),
+  welcomeSeen: () => request('/learn/welcome-seen', { method: 'POST' }),
+  disc: () => request('/learn/disc'),
+  submitDisc: (answers) => request('/learn/disc', { method: 'POST', body: JSON.stringify({ answers }) }),
 
   managerOverview: () => request('/manager/overview'),
   managerEmployee: (id) => request('/manager/employees/' + id),

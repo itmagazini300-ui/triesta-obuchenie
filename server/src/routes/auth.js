@@ -31,6 +31,7 @@ function publicUser(u) {
   return {
     id: u.id, name: u.name, email: u.email, role: u.role,
     store: u.store, position: u.position, mentor: u.mentor, start_date: u.start_date,
+    seen_welcome: u.seen_welcome, disc_result: u.disc_result,
   };
 }
 

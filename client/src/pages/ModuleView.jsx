@@ -4,6 +4,17 @@ import { api } from '../api.js';
 import { Icon } from '../icons.jsx';
 import { Loading, StatusPill } from '../components.jsx';
 
+// Разпознава видео линк (YouTube / Vimeo / директен файл) и връща начин на вграждане.
+function videoEmbed(url) {
+  if (!url) return null;
+  const yt = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([\w-]{11})/);
+  if (yt) return { type: 'iframe', src: `https://www.youtube.com/embed/${yt[1]}` };
+  const vimeo = url.match(/vimeo\.com\/(\d+)/);
+  if (vimeo) return { type: 'iframe', src: `https://player.vimeo.com/video/${vimeo[1]}` };
+  if (/\.(mp4|webm|ogg)(\?|#|$)/i.test(url)) return { type: 'video', src: url };
+  return { type: 'link', src: url };
+}
+
 export default function ModuleView() {
   const { id } = useParams();
   const nav = useNavigate();
@@ -44,14 +55,34 @@ export default function ModuleView() {
         </div>
         <h1 style={{ fontSize: 30, textTransform: 'uppercase', marginBottom: 4 }}>{m.title}</h1>
         <p className="muted" style={{ marginTop: 0 }}>{m.summary}</p>
+        {m.duration ? (
+          <div className="muted" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13.5, fontWeight: 700 }}>
+            <Icon name="clock" size={15} /> ~{m.duration} мин
+          </div>
+        ) : null}
 
-        <div style={{
-          margin: '18px 0', borderRadius: 12, background: 'var(--tint-2)', border: '1px solid var(--tint)',
-          height: 150, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: 'var(--orange)', gap: 8,
-        }}>
-          <Icon name="play" size={40} />
-          <span style={{ fontWeight: 700, color: 'var(--muted)', fontSize: 13 }}>Място за видео на урока (по избор)</span>
-        </div>
+        {(() => {
+          const v = videoEmbed(m.video_url);
+          const box = { margin: '18px 0', borderRadius: 12, overflow: 'hidden', border: '1px solid var(--tint)' };
+          if (v && v.type === 'iframe') return (
+            <div style={{ ...box, position: 'relative', paddingTop: '56.25%' }}>
+              <iframe src={v.src} title={m.title} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen
+                style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', border: 0 }} />
+            </div>
+          );
+          if (v && v.type === 'video') return <video src={v.src} controls style={{ ...box, width: '100%', display: 'block', background: '#000' }} />;
+          if (v && v.type === 'link') return (
+            <div style={{ ...box, padding: 20, background: 'var(--tint-2)', textAlign: 'center' }}>
+              <a className="btn" href={v.src} target="_blank" rel="noreferrer"><Icon name="play" size={18} /> Отвори видеото</a>
+            </div>
+          );
+          return (
+            <div style={{ ...box, background: 'var(--tint-2)', height: 150, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: 'var(--orange)', gap: 8 }}>
+              <Icon name="play" size={40} />
+              <span style={{ fontWeight: 700, color: 'var(--muted)', fontSize: 13 }}>Няма видео към този модул</span>
+            </div>
+          );
+        })()}
 
         <div className="content">
           {m.content.split('\n\n').map((p, i) => <p key={i}>{p}</p>)}

@@ -55,7 +55,7 @@ export default function CategoryView() {
               </div>
               <div className="t">
                 <b>{m.title}</b>
-                <span>{m.summary}</span>
+                <span>{m.summary}{m.duration ? ` · ~${m.duration} мин` : ''}</span>
               </div>
               {m.status === 'completed' && <span className="sc">{m.score}%</span>}
               <StatusPill status={m.status} />

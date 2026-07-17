@@ -20,7 +20,7 @@ export default function AdminModule() {
   function load() {
     api.adminModule(id).then((d) => {
       setData(d);
-      setForm({ title: d.module.title, summary: d.module.summary || '', content: d.module.content || '', video_url: d.module.video_url || '' });
+      setForm({ title: d.module.title, summary: d.module.summary || '', content: d.module.content || '', video_url: d.module.video_url || '', duration: d.module.duration ?? '' });
     });
   }
   useEffect(() => { load(); }, [id]);
@@ -101,9 +101,15 @@ export default function AdminModule() {
           <label>Текст на урока</label>
           <textarea style={{ minHeight: 200 }} value={form.content} onChange={(e) => setForm({ ...form, content: e.target.value })} placeholder="Празен ред разделя параграфите." />
         </div>
-        <div className="field">
-          <label>Линк към видео (по избор)</label>
-          <input value={form.video_url} onChange={(e) => setForm({ ...form, video_url: e.target.value })} placeholder="https://…" />
+        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '0 16px' }}>
+          <div className="field">
+            <label>Линк към видео (по избор)</label>
+            <input value={form.video_url} onChange={(e) => setForm({ ...form, video_url: e.target.value })} placeholder="YouTube, Vimeo или .mp4" />
+          </div>
+          <div className="field">
+            <label>Времетраене (мин)</label>
+            <input type="number" min="1" value={form.duration} onChange={(e) => setForm({ ...form, duration: e.target.value })} placeholder="напр. 3" />
+          </div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
           <button className="btn" disabled={savingMod} onClick={saveModule}>{savingMod ? 'Запис…' : 'Запази урока'}</button>
