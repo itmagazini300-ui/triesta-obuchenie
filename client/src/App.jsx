@@ -69,14 +69,18 @@ function Layout() {
   const { user, logout } = useAuth();
   const nav = useNavigate();
   const isManager = user.role === 'manager';
+  const [menuOpen, setMenuOpen] = useState(false);
 
-  async function doLogout() { await logout(); nav('/login'); }
+  async function doLogout() { setMenuOpen(false); await logout(); nav('/login'); }
 
   return (
     <>
       <header className="topbar">
-        <NavLink to="/"><Brand /></NavLink>
-        <nav className="navlinks">
+        <button className="burger" onClick={() => setMenuOpen((v) => !v)} aria-label="Меню" aria-expanded={menuOpen}>
+          <Icon name={menuOpen ? 'close' : 'menu'} size={22} />
+        </button>
+        <NavLink to="/" onClick={() => setMenuOpen(false)}><Brand /></NavLink>
+        <nav className={'navlinks' + (menuOpen ? ' open' : '')} onClick={() => setMenuOpen(false)}>
           {isManager ? (
             <>
               <NavLink to="/manager" className={({ isActive }) => isActive ? 'active' : ''}>Табло</NavLink>

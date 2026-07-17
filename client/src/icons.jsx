@@ -23,6 +23,7 @@ const P = {
   alert: <><path d="M12 4 2.5 20h19L12 4Z"/><path d="M12 10v4M12 17.5v.5"/></>,
   spark: <><path d="M12 3v3M12 18v3M4.2 7l2.1 2.1M17.7 14.9l2.1 2.1M3 12h3M18 12h3M4.2 17l2.1-2.1M17.7 9.1l2.1-2.1"/></>,
   close: <path d="M6 6l12 12M18 6L6 18"/>,
+  menu: <path d="M4 7h16M4 12h16M4 17h16"/>,
   plus: <path d="M12 5v14M5 12h14"/>,
   edit: <><path d="M4 20h4L18.5 9.5a2.1 2.1 0 0 0-3-3L5 17v3Z"/><path d="M13.5 6.5l3 3"/></>,
   trash: <><path d="M4 7h16"/><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/><path d="M6 7l1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13"/><path d="M10 11v6M14 11v6"/></>,
