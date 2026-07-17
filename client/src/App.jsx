@@ -21,6 +21,8 @@ import Onboarding from './pages/Onboarding.jsx';
 import Strategy from './pages/Strategy.jsx';
 import Candidates from './pages/Candidates.jsx';
 import Apply from './pages/Apply.jsx';
+import Videos from './pages/Videos.jsx';
+import AdminVideos from './pages/AdminVideos.jsx';
 
 const AuthCtx = createContext(null);
 export const useAuth = () => useContext(AuthCtx);
@@ -53,6 +55,7 @@ export default function App() {
           <Route path="/module/:id" element={<ModuleView />} />
           <Route path="/module/:id/test" element={<TestView />} />
           <Route path="/certificates" element={<Certificates />} />
+          <Route path="/videos" element={<Videos />} />
           <Route path="/disc" element={<DiscTest />} />
           <Route path="/onboarding" element={<Onboarding />} />
           <Route path="/strategy" element={<Strategy />} />
@@ -63,6 +66,7 @@ export default function App() {
           <Route path="/admin" element={<AdminCategories />} />
           <Route path="/admin/category/:id" element={<AdminCategory />} />
           <Route path="/admin/module/:id" element={<AdminModule />} />
+          <Route path="/video-lessons" element={<AdminVideos />} />
           <Route path="/people" element={<AdminUsers />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
@@ -98,12 +102,14 @@ function Layout() {
               <NavLink to="/manager" className={({ isActive }) => isActive ? 'active' : ''}>Табло</NavLink>
               <NavLink to="/mentors" className={({ isActive }) => isActive ? 'active' : ''}>Ментори</NavLink>
               <NavLink to="/candidates" className={({ isActive }) => isActive ? 'active' : ''}>Кандидати</NavLink>
-              <NavLink to="/admin" className={({ isActive }) => isActive ? 'active' : ''}>Съдържание</NavLink>
-              <NavLink to="/people" className={({ isActive }) => isActive ? 'active' : ''}>Хора</NavLink>
+              <NavLink to="/admin" className={({ isActive }) => isActive ? 'active' : ''}>Уроци</NavLink>
+              <NavLink to="/video-lessons" className={({ isActive }) => isActive ? 'active' : ''}>Видео Уроци</NavLink>
+              <NavLink to="/people" className={({ isActive }) => isActive ? 'active' : ''}>Служители</NavLink>
             </>
           ) : (
             <>
               <NavLink to="/" end className={({ isActive }) => isActive ? 'active' : ''}>Моите обучения</NavLink>
+              <NavLink to="/videos" className={({ isActive }) => isActive ? 'active' : ''}>Видео Уроци</NavLink>
               <NavLink to="/disc" className={({ isActive }) => isActive ? 'active' : ''}>DISC тест</NavLink>
               <NavLink to="/onboarding" className={({ isActive }) => isActive ? 'active' : ''}>Онбординг</NavLink>
               <NavLink to="/certificates" className={({ isActive }) => isActive ? 'active' : ''}>Сертификати</NavLink>

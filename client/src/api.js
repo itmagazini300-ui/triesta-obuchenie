@@ -19,6 +19,7 @@ export const api = {
   openModule: (id) => request('/learn/modules/' + id + '/open', { method: 'POST' }),
   submitTest: (id, answers) => request('/learn/modules/' + id + '/submit', { method: 'POST', body: JSON.stringify({ answers }) }),
   certificates: () => request('/learn/certificates'),
+  videos: () => request('/learn/videos'),
   welcomeSeen: () => request('/learn/welcome-seen', { method: 'POST' }),
   disc: () => request('/learn/disc'),
   submitDisc: (answers) => request('/learn/disc', { method: 'POST', body: JSON.stringify({ answers }) }),
@@ -52,6 +53,13 @@ export const api = {
   adminDeleteQuestion: (id) => request('/admin/questions/' + id, { method: 'DELETE' }),
   adminMoveQuestion: (id, dir) => request('/admin/questions/' + id + '/move', { method: 'POST', body: JSON.stringify({ dir }) }),
   adminImportQuestions: (moduleId, text) => request('/admin/modules/' + moduleId + '/import-questions', { method: 'POST', body: JSON.stringify({ text }) }),
+
+  // ── админ: видео уроци ──
+  adminVideos: () => request('/admin/videos'),
+  adminCreateVideo: (data) => request('/admin/videos', { method: 'POST', body: JSON.stringify(data) }),
+  adminUpdateVideo: (id, data) => request('/admin/videos/' + id, { method: 'PUT', body: JSON.stringify(data) }),
+  adminDeleteVideo: (id) => request('/admin/videos/' + id, { method: 'DELETE' }),
+  adminMoveVideo: (id, dir) => request('/admin/videos/' + id + '/move', { method: 'POST', body: JSON.stringify({ dir }) }),
 
   // ── админ: потребители ──
   adminUsers: () => request('/admin/users'),

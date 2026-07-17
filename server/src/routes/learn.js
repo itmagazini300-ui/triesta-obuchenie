@@ -38,6 +38,12 @@ router.post('/modules/:id/submit', (req, res) => {
   res.json(result);
 });
 
+// ── Видео уроци (за гледане от служителя) ──
+router.get('/videos', (_req, res) => {
+  const videos = db.prepare('SELECT id, title, description, video_url, duration, category FROM videos ORDER BY order_index, id').all();
+  res.json({ videos });
+});
+
 // ── Приветствен екран ──
 router.post('/welcome-seen', (req, res) => {
   db.prepare('UPDATE users SET seen_welcome = 1 WHERE id = ?').run(req.user.id);

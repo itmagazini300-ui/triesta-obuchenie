@@ -63,6 +63,16 @@ export function initSchema() {
       order_index   INTEGER NOT NULL DEFAULT 0
     );
 
+    CREATE TABLE IF NOT EXISTS videos (
+      id          INTEGER PRIMARY KEY AUTOINCREMENT,
+      title       TEXT NOT NULL,
+      description TEXT,
+      video_url   TEXT,
+      duration    INTEGER,
+      category    TEXT,
+      order_index INTEGER NOT NULL DEFAULT 0
+    );
+
     CREATE TABLE IF NOT EXISTS applications (
       id         INTEGER PRIMARY KEY AUTOINCREMENT,
       name       TEXT NOT NULL,

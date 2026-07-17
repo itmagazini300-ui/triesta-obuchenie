@@ -172,6 +172,39 @@ router.post('/questions/:id/move', (req, res) => {
   res.json({ ok: true });
 });
 
+// ─── ВИДЕО УРОЦИ ───────────────────────────────────────────
+router.get('/videos', (_req, res) => {
+  res.json({ videos: db.prepare('SELECT * FROM videos ORDER BY order_index, id').all() });
+});
+
+router.post('/videos', (req, res) => {
+  const { title, description, video_url, duration, category } = req.body || {};
+  if (!title?.trim()) return res.status(400).json({ error: 'Въведи заглавие на видеото.' });
+  const order = nextOrder('videos', null, null);
+  const id = db.prepare('INSERT INTO videos (title, description, video_url, duration, category, order_index) VALUES (?, ?, ?, ?, ?, ?)')
+    .run(title.trim(), (description || '').trim() || null, (video_url || '').trim() || null, parseDuration(duration), (category || '').trim() || null, order).lastInsertRowid;
+  res.json({ id });
+});
+
+router.put('/videos/:id', (req, res) => {
+  const { title, description, video_url, duration, category } = req.body || {};
+  if (!title?.trim()) return res.status(400).json({ error: 'Въведи заглавие на видеото.' });
+  const info = db.prepare('UPDATE videos SET title = ?, description = ?, video_url = ?, duration = ?, category = ? WHERE id = ?')
+    .run(title.trim(), (description || '').trim() || null, (video_url || '').trim() || null, parseDuration(duration), (category || '').trim() || null, Number(req.params.id));
+  if (info.changes === 0) return res.status(404).json({ error: 'Видеото не е намерено.' });
+  res.json({ ok: true });
+});
+
+router.delete('/videos/:id', (req, res) => {
+  db.prepare('DELETE FROM videos WHERE id = ?').run(Number(req.params.id));
+  res.json({ ok: true });
+});
+
+router.post('/videos/:id/move', (req, res) => {
+  swap('videos', '1 = ?', [1], Number(req.params.id), req.body?.dir === 'up' ? 'up' : 'down');
+  res.json({ ok: true });
+});
+
 // ─── ИМПОРТ НА ВЪПРОСИ ОТ CSV ──────────────────────────────
 // Формат на всеки ред:  Въпрос ; Отговор1 ; Отговор2 ; … ; №НаВерния
 router.post('/modules/:id/import-questions', (req, res) => {

@@ -317,8 +317,8 @@ export function seed() {
   initSchema();
 
   // Изчистване (при повторно стартиране на seed)
-  db.exec('DELETE FROM progress; DELETE FROM questions; DELETE FROM modules; DELETE FROM categories; DELETE FROM users; DELETE FROM applications;');
-  db.exec("DELETE FROM sqlite_sequence WHERE name IN ('progress','questions','modules','categories','users','applications')");
+  db.exec('DELETE FROM progress; DELETE FROM questions; DELETE FROM modules; DELETE FROM categories; DELETE FROM users; DELETE FROM applications; DELETE FROM videos;');
+  db.exec("DELETE FROM sqlite_sequence WHERE name IN ('progress','questions','modules','categories','users','applications','videos')");
 
   const insCat = db.prepare('INSERT INTO categories (slug, title, icon, description, order_index) VALUES (?, ?, ?, ?, ?)');
   const insMod = db.prepare('INSERT INTO modules (category_id, title, summary, content, duration, order_index) VALUES (?, ?, ?, ?, ?, ?)');
@@ -374,6 +374,18 @@ export function seed() {
     ['Симона Тодорова', null, 'simona.t@gmail.com', 'Старши продавач', 'Варна', 'Мотивирана съм да раста в екип.', 'new', "2026-07-15 18:10:00"],
   ];
   for (const a of APPLICATIONS) insApp.run(...a);
+
+  // Примерни видео уроци (от инфографиката „Обучителни видеа")
+  const insVideo = db.prepare('INSERT INTO videos (title, description, video_url, duration, category, order_index) VALUES (?, ?, ?, ?, ?, ?)');
+  const VIDEOS = [
+    ['Нареждане на стока', 'Как се подрежда и зарежда стоката на рафта.', null, 4, 'Магазин', 0],
+    ['Работа на каса', 'Плащания, ресто и приключване на смяна.', null, 5, 'Каса', 1],
+    ['Сторно операции', 'Кога и как се прави сторно.', null, 3, 'Каса', 2],
+    ['Обслужване на клиенти', 'Посрещане, комуникация и работа с възражения.', null, 4, 'Клиенти', 3],
+    ['Хигиена и безопасност', 'Стандарти за чистота и безопасност на храните.', null, 3, 'Стандарти', 4],
+    ['Как да реагираме, когато не сме сигурни?', 'Трудни ситуации и към кого да се обърнем.', null, 3, 'Клиенти', 5],
+  ];
+  for (const v of VIDEOS) insVideo.run(...v);
 
   const counts = {
     users: db.prepare('SELECT COUNT(*) n FROM users').get().n,
