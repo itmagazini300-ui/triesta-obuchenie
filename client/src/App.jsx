@@ -18,6 +18,9 @@ import AdminUsers from './pages/AdminUsers.jsx';
 import Mentors from './pages/Mentors.jsx';
 import DiscTest from './pages/DiscTest.jsx';
 import Onboarding from './pages/Onboarding.jsx';
+import Strategy from './pages/Strategy.jsx';
+import Candidates from './pages/Candidates.jsx';
+import Apply from './pages/Apply.jsx';
 
 const AuthCtx = createContext(null);
 export const useAuth = () => useContext(AuthCtx);
@@ -43,16 +46,19 @@ export default function App() {
     <AuthCtx.Provider value={value}>
       <Routes>
         <Route path="/login" element={user ? <Navigate to="/" replace /> : <Login />} />
+        <Route path="/apply" element={<Apply />} />
         <Route element={<Protected user={user} />}>
-          <Route path="/" element={user?.role === 'manager' ? <Navigate to="/manager" replace /> : <EmployeeHome />} />
+          <Route path="/" element={user?.role === 'manager' ? <Navigate to="/strategy" replace /> : <EmployeeHome />} />
           <Route path="/category/:id" element={<CategoryView />} />
           <Route path="/module/:id" element={<ModuleView />} />
           <Route path="/module/:id/test" element={<TestView />} />
           <Route path="/certificates" element={<Certificates />} />
           <Route path="/disc" element={<DiscTest />} />
           <Route path="/onboarding" element={<Onboarding />} />
+          <Route path="/strategy" element={<Strategy />} />
           <Route path="/manager" element={<ManagerHome />} />
           <Route path="/manager/employee/:id" element={<ManagerEmployee />} />
+          <Route path="/candidates" element={<Candidates />} />
           <Route path="/mentors" element={<Mentors />} />
           <Route path="/admin" element={<AdminCategories />} />
           <Route path="/admin/category/:id" element={<AdminCategory />} />
@@ -88,11 +94,12 @@ function Layout() {
         <nav className={'navlinks' + (menuOpen ? ' open' : '')} onClick={() => setMenuOpen(false)}>
           {isManager ? (
             <>
+              <NavLink to="/strategy" className={({ isActive }) => isActive ? 'active' : ''}>Стратегия</NavLink>
               <NavLink to="/manager" className={({ isActive }) => isActive ? 'active' : ''}>Табло</NavLink>
               <NavLink to="/mentors" className={({ isActive }) => isActive ? 'active' : ''}>Ментори</NavLink>
+              <NavLink to="/candidates" className={({ isActive }) => isActive ? 'active' : ''}>Кандидати</NavLink>
               <NavLink to="/admin" className={({ isActive }) => isActive ? 'active' : ''}>Съдържание</NavLink>
               <NavLink to="/people" className={({ isActive }) => isActive ? 'active' : ''}>Хора</NavLink>
-              <NavLink to="/onboarding" className={({ isActive }) => isActive ? 'active' : ''}>Онбординг</NavLink>
             </>
           ) : (
             <>

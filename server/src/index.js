@@ -10,6 +10,7 @@ import authRoutes from './routes/auth.js';
 import learnRoutes from './routes/learn.js';
 import managerRoutes from './routes/manager.js';
 import adminRoutes from './routes/admin.js';
+import applyRoutes from './routes/apply.js';
 
 const PORT = process.env.PORT || 4000;
 
@@ -33,6 +34,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/learn', learnRoutes);
 app.use('/api/manager', managerRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/apply', applyRoutes); // публичен – без вход
 
 // В режим на качване сървърът сервира и готовия сайт (client/dist),
 // така че всичко работи на един адрес.

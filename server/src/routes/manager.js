@@ -97,6 +97,30 @@ router.get('/mentors', (_req, res) => {
   });
 });
 
+// Кандидати (от публичната форма за работа)
+const APP_STATUSES = ['new', 'contacted', 'interview', 'hired', 'rejected'];
+
+router.get('/applications', (_req, res) => {
+  const applications = db.prepare('SELECT * FROM applications ORDER BY created_at DESC, id DESC').all();
+  const counts = {};
+  for (const s of APP_STATUSES) counts[s] = 0;
+  for (const a of applications) counts[a.status] = (counts[a.status] || 0) + 1;
+  res.json({ applications, counts, total: applications.length });
+});
+
+router.patch('/applications/:id', (req, res) => {
+  const status = req.body?.status;
+  if (!APP_STATUSES.includes(status)) return res.status(400).json({ error: 'Невалиден статус.' });
+  const info = db.prepare('UPDATE applications SET status = ? WHERE id = ?').run(status, Number(req.params.id));
+  if (info.changes === 0) return res.status(404).json({ error: 'Кандидатът не е намерен.' });
+  res.json({ ok: true });
+});
+
+router.delete('/applications/:id', (req, res) => {
+  db.prepare('DELETE FROM applications WHERE id = ?').run(Number(req.params.id));
+  res.json({ ok: true });
+});
+
 // Детайл за конкретен служител (по модули)
 router.get('/employees/:id', (req, res) => {
   const e = db

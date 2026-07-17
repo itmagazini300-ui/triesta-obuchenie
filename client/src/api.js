@@ -26,6 +26,12 @@ export const api = {
   managerOverview: () => request('/manager/overview'),
   managerEmployee: (id) => request('/manager/employees/' + id),
   managerMentors: () => request('/manager/mentors'),
+  managerApplications: () => request('/manager/applications'),
+  updateApplication: (id, status) => request('/manager/applications/' + id, { method: 'PATCH', body: JSON.stringify({ status }) }),
+  deleteApplication: (id) => request('/manager/applications/' + id, { method: 'DELETE' }),
+
+  // публично – без вход
+  apply: (data) => request('/apply', { method: 'POST', body: JSON.stringify(data) }),
 
   // ── админ: съдържание ──
   adminCategories: () => request('/admin/categories'),

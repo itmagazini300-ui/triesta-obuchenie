@@ -317,8 +317,8 @@ export function seed() {
   initSchema();
 
   // Изчистване (при повторно стартиране на seed)
-  db.exec('DELETE FROM progress; DELETE FROM questions; DELETE FROM modules; DELETE FROM categories; DELETE FROM users;');
-  db.exec("DELETE FROM sqlite_sequence WHERE name IN ('progress','questions','modules','categories','users')");
+  db.exec('DELETE FROM progress; DELETE FROM questions; DELETE FROM modules; DELETE FROM categories; DELETE FROM users; DELETE FROM applications;');
+  db.exec("DELETE FROM sqlite_sequence WHERE name IN ('progress','questions','modules','categories','users','applications')");
 
   const insCat = db.prepare('INSERT INTO categories (slug, title, icon, description, order_index) VALUES (?, ?, ?, ?, ?)');
   const insMod = db.prepare('INSERT INTO modules (category_id, title, summary, content, duration, order_index) VALUES (?, ?, ?, ?, ?, ?)');
@@ -364,6 +364,16 @@ export function seed() {
       });
     }
   }
+
+  // Примерни кандидатури (от публичната форма за работа)
+  const insApp = db.prepare('INSERT INTO applications (name, phone, email, position, city, message, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
+  const APPLICATIONS = [
+    ['Ивайло Маринов', '0888 123 456', 'ivaylo.m@gmail.com', 'Продавач-консултант', 'София', 'Търся дългосрочна работа с възможност за развитие.', 'new', "2026-07-14 09:20:00"],
+    ['Габриела Петкова', '0899 765 432', 'gabi.p@abv.bg', 'Касиер', 'Пловдив', 'Имам опит в търговията от 2 години.', 'contacted', "2026-07-13 15:40:00"],
+    ['Кристиан Николов', '0877 555 111', null, 'Продавач-консултант', 'София', 'Студент съм, търся работа на непълно време.', 'interview', "2026-07-12 11:05:00"],
+    ['Симона Тодорова', null, 'simona.t@gmail.com', 'Старши продавач', 'Варна', 'Мотивирана съм да раста в екип.', 'new', "2026-07-15 18:10:00"],
+  ];
+  for (const a of APPLICATIONS) insApp.run(...a);
 
   const counts = {
     users: db.prepare('SELECT COUNT(*) n FROM users').get().n,

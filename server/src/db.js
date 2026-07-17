@@ -63,6 +63,18 @@ export function initSchema() {
       order_index   INTEGER NOT NULL DEFAULT 0
     );
 
+    CREATE TABLE IF NOT EXISTS applications (
+      id         INTEGER PRIMARY KEY AUTOINCREMENT,
+      name       TEXT NOT NULL,
+      phone      TEXT,
+      email      TEXT,
+      position   TEXT,
+      city       TEXT,
+      message    TEXT,
+      status     TEXT NOT NULL DEFAULT 'new',   -- new|contacted|interview|hired|rejected
+      created_at TEXT DEFAULT (datetime('now'))
+    );
+
     CREATE TABLE IF NOT EXISTS progress (
       id           INTEGER PRIMARY KEY AUTOINCREMENT,
       user_id      INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
