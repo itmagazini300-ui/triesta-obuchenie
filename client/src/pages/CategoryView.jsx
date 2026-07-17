@@ -34,20 +34,34 @@ export default function CategoryView() {
         </div>
       </div>
 
+      <p className="muted" style={{ fontSize: 13.5, margin: '0 0 10px', display: 'flex', alignItems: 'center', gap: 7 }}>
+        <Icon name="lock" size={15} /> Модулите се отключват един по един — завърши текущия, за да продължиш към следващия.
+      </p>
       <div className="card">
         {cat.modules.map((m, i) => (
-          <div key={m.id} className="modrow" onClick={() => nav('/module/' + m.id)} style={{ cursor: 'pointer' }}>
-            <div className={'num' + (m.status === 'completed' ? ' done' : '')}>
-              {m.status === 'completed' ? <Icon name="check" size={15} /> : i + 1}
+          m.locked ? (
+            <div key={m.id} className="modrow locked" aria-disabled="true">
+              <div className="num lock"><Icon name="lock" size={15} /></div>
+              <div className="t">
+                <b>{m.title}</b>
+                <span>Завърши предишния модул, за да го отключиш.</span>
+              </div>
+              <StatusPill status={m.status} />
             </div>
-            <div className="t">
-              <b>{m.title}</b>
-              <span>{m.summary}</span>
+          ) : (
+            <div key={m.id} className="modrow" onClick={() => nav('/module/' + m.id)} style={{ cursor: 'pointer' }}>
+              <div className={'num' + (m.status === 'completed' ? ' done' : '')}>
+                {m.status === 'completed' ? <Icon name="check" size={15} /> : i + 1}
+              </div>
+              <div className="t">
+                <b>{m.title}</b>
+                <span>{m.summary}</span>
+              </div>
+              {m.status === 'completed' && <span className="sc">{m.score}%</span>}
+              <StatusPill status={m.status} />
+              <Icon name="arrowr" size={18} className="muted" />
             </div>
-            {m.status === 'completed' && <span className="sc">{m.score}%</span>}
-            <StatusPill status={m.status} />
-            <Icon name="arrowr" size={18} className="muted" />
-          </div>
+          )
         ))}
       </div>
     </div>

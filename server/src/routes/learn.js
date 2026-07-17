@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { requireAuth } from '../auth.js';
-import { getCatalog, getModule, markOpened, submitTest } from '../progressCalc.js';
+import { getCatalog, getModule, markOpened, submitTest, moduleLocked } from '../progressCalc.js';
 
 const router = Router();
 router.use(requireAuth);
@@ -17,15 +17,21 @@ router.get('/modules/:id', (req, res) => {
   res.json(data);
 });
 
+const LOCKED_MSG = 'Този модул още е заключен. Първо завърши предишния модул.';
+
 // Отваряне на модул -> отбелязва "в процес"
 router.post('/modules/:id/open', (req, res) => {
-  markOpened(req.user.id, Number(req.params.id));
+  const id = Number(req.params.id);
+  if (moduleLocked(req.user.id, id)) return res.status(403).json({ error: LOCKED_MSG });
+  markOpened(req.user.id, id);
   res.json({ ok: true });
 });
 
 // Предаване на теста
 router.post('/modules/:id/submit', (req, res) => {
-  const result = submitTest(req.user.id, Number(req.params.id), req.body?.answers || {});
+  const id = Number(req.params.id);
+  if (moduleLocked(req.user.id, id)) return res.status(403).json({ error: LOCKED_MSG });
+  const result = submitTest(req.user.id, id, req.body?.answers || {});
   if (result.error) return res.status(400).json(result);
   res.json(result);
 });

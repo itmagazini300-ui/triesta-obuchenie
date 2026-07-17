@@ -10,11 +10,27 @@ export default function ModuleView() {
   const [m, setM] = useState(null);
 
   useEffect(() => {
-    api.module(id).then(setM);
-    api.openModule(id).catch(() => {});
+    api.module(id).then((data) => {
+      setM(data);
+      if (!data.locked) api.openModule(id).catch(() => {});
+    });
   }, [id]);
 
   if (!m) return <Loading />;
+
+  if (m.locked) {
+    return (
+      <div className="wrap" style={{ maxWidth: 640 }}>
+        <Link to={'/category/' + m.category.id} className="back"><Icon name="arrowl" size={16} /> {m.category.title}</Link>
+        <div className="card" style={{ padding: 40, textAlign: 'center' }}>
+          <div style={{ color: 'var(--muted)', marginBottom: 12 }}><Icon name="lock" size={44} /></div>
+          <h1 style={{ fontSize: 22, textTransform: 'uppercase' }}>Модулът е заключен</h1>
+          <p className="muted" style={{ marginTop: 8 }}>Завърши предишния модул в категорията, за да отключиш „{m.title}".</p>
+          <Link to={'/category/' + m.category.id} className="btn" style={{ marginTop: 16 }}>Към категорията</Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="wrap" style={{ maxWidth: 860 }}>

@@ -109,6 +109,9 @@ h1,h2,h3{margin:0;font-weight:900;letter-spacing:-.02em;text-wrap:balance}
 .modrow .t b{font-size:15.5px}
 .modrow .t span{display:block;color:var(--muted);font-size:13px}
 .modrow .sc{font-weight:900;font-variant-numeric:tabular-nums;color:var(--green)}
+.modrow.locked{opacity:.62;cursor:not-allowed}
+.modrow.locked .t b{color:var(--muted)}
+.num.lock{background:var(--grey-bg);color:var(--muted)}
 
 /* ---------- lesson ---------- */
 .lesson{padding:30px 34px}

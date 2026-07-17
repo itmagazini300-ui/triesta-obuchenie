@@ -15,6 +15,20 @@ export default function TestView() {
   useEffect(() => { api.module(id).then(setM); setAnswers({}); setResult(null); }, [id]);
   if (!m) return <Loading />;
 
+  if (m.locked) {
+    return (
+      <div className="wrap" style={{ maxWidth: 640 }}>
+        <Link to={'/category/' + m.category.id} className="back"><Icon name="arrowl" size={16} /> {m.category.title}</Link>
+        <div className="card" style={{ padding: 40, textAlign: 'center' }}>
+          <div style={{ color: 'var(--muted)', marginBottom: 12 }}><Icon name="lock" size={44} /></div>
+          <h1 style={{ fontSize: 22, textTransform: 'uppercase' }}>Тестът е заключен</h1>
+          <p className="muted" style={{ marginTop: 8 }}>Завърши предишния модул, за да продължиш.</p>
+          <Link to={'/category/' + m.category.id} className="btn" style={{ marginTop: 16 }}>Към категорията</Link>
+        </div>
+      </div>
+    );
+  }
+
   const allAnswered = m.questions.every((q) => answers[q.id] !== undefined);
 
   async function submit() {

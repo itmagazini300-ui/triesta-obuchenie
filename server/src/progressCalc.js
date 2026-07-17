@@ -34,6 +34,14 @@ export function getCatalog(userId) {
         };
       });
 
+    // Последователно отключване: първият модул е отключен, всеки следващ –
+    // само след като предишният е завършен.
+    let prevCompleted = true;
+    mods.forEach((mm) => {
+      mm.locked = !prevCompleted;
+      prevCompleted = mm.status === 'completed';
+    });
+
     const catVal = mods.reduce((s, m) => s + moduleValue(m.status), 0);
     const done = mods.filter((m) => m.status === 'completed').length;
     const percent = mods.length ? Math.round((catVal / mods.length) * 100) : 0;
@@ -79,10 +87,17 @@ export function getModule(userId, moduleId) {
     .map((q) => ({ id: q.id, text: q.text, options: JSON.parse(q.options) }));
   const p = db.prepare('SELECT status, score, completed_at FROM progress WHERE user_id = ? AND module_id = ?').get(userId, moduleId);
 
-  // подредба вътре в категорията – за "следващ модул"
+  // подредба вътре в категорията – за "следващ модул" и заключване
   const siblings = db.prepare('SELECT id FROM modules WHERE category_id = ? ORDER BY order_index, id').all(m.category_id);
   const idx = siblings.findIndex((s) => s.id === m.id);
   const nextId = idx >= 0 && idx < siblings.length - 1 ? siblings[idx + 1].id : null;
+
+  // Заключен ли е: ако не е първи и предишният не е завършен.
+  let locked = false;
+  if (idx > 0) {
+    const prevStatus = db.prepare('SELECT status FROM progress WHERE user_id = ? AND module_id = ?').get(userId, siblings[idx - 1].id);
+    locked = prevStatus?.status !== 'completed';
+  }
 
   return {
     id: m.id, title: m.title, summary: m.summary, content: m.content, video_url: m.video_url,
@@ -93,7 +108,19 @@ export function getModule(userId, moduleId) {
     score: p?.score ?? null,
     completed_at: p?.completed_at ?? null,
     nextModuleId: nextId,
+    locked,
   };
+}
+
+// Заключен ли е модулът за този потребител (за защита на сървъра).
+export function moduleLocked(userId, moduleId) {
+  const m = db.prepare('SELECT category_id FROM modules WHERE id = ?').get(moduleId);
+  if (!m) return false;
+  const sibs = db.prepare('SELECT id FROM modules WHERE category_id = ? ORDER BY order_index, id').all(m.category_id);
+  const idx = sibs.findIndex((s) => s.id === Number(moduleId));
+  if (idx <= 0) return false;
+  const prev = db.prepare('SELECT status FROM progress WHERE user_id = ? AND module_id = ?').get(userId, sibs[idx - 1].id);
+  return prev?.status !== 'completed';
 }
 
 // Отбелязва модула като "в процес" при отваряне (ако още не е завършен).
