@@ -260,7 +260,7 @@ function cleanUser(u, id) {
   if (!u.name?.trim()) return { error: 'Въведи име.' };
   const role = u.role === 'manager' ? 'manager' : 'employee';
   const email = String(u.email || '').trim().toLowerCase() || null;
-  if (email && !/^[^@s]+@[^@s]+.[^@s]+$/.test(email)) return { error: 'Въведи валиден имейл.' };
+  if (email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return { error: 'Въведи валиден имейл.' };
   if (role === 'manager' && !email) return { error: 'Управителят влиза с имейл – въведи имейл.' };
   const phoneRaw = String(u.phone || '').trim();
   const phone = phoneRaw ? normalizePhone(phoneRaw) : null;

@@ -48,6 +48,15 @@ test('ментор изисква стил и магазин', async () => {
   assert.equal(db.prepare('SELECT mentor_style FROM users WHERE id = ?').get(ok.data.id).mentor_style, 'D');
 });
 
+test('управител с валиден имейл, съдържащ „s“ → 200; невалиден имейл → 400; редакция със същия имейл → 200', async () => {
+  const mk = { name: 'Мениджър', role: 'manager', password: 'secret1' };
+  const ok = await mgr('POST', '/admin/users', { ...mk, email: 'shop@trista.bg' });
+  assert.equal(ok.status, 200);
+  assert.equal((await mgr('POST', '/admin/users', { ...mk, name: 'Лош', email: 'bad@x' })).status, 400);
+  const put = await mgr('PUT', `/admin/users/${ok.data.id}`, { name: 'Мениджър', role: 'manager', email: 'shop@trista.bg' });
+  assert.equal(put.status, 200);
+});
+
 test('редакция: запазва телефона и сменя стила; чужд телефон → 400', async () => {
   const id = db.prepare("SELECT id FROM users WHERE name = 'Ментор'").get().id;
   const r = await mgr('PUT', `/admin/users/${id}`, { name: 'Ментор', role: 'employee', phone: '0899222004', is_mentor: 1, mentor_style: 'S', store: 'МИР' });
