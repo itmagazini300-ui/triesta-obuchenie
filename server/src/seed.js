@@ -1,5 +1,6 @@
 import bcrypt from 'bcryptjs';
 import { db, initSchema } from './db.js';
+import { suggestMentor } from './mentorMatch.js';
 
 // ─────────────────────────────────────────────────────────────
 //  СТРУКТУРА НА ОБУЧЕНИЯТА
@@ -227,19 +228,24 @@ const CATEGORIES = [
 const PASSWORD = 'triesta123'; // обща демо парола
 
 const USERS = [
-  { name: 'Мария Георгиева', email: 'mariya@triesta.bg', role: 'manager', store: 'Централен офис', position: 'Регионален управител', mentor: null, start_date: '2019-03-01', is_mentor: 1, feedback_rating: 4.8, retention_rate: 92 },
-  // Ментори (старши служители, които обучават други)
-  { name: 'Анна Димитрова', email: 'anna@triesta.bg', role: 'employee', store: 'Магазин Изток', position: 'Старши продавач', mentor: 'Мария Георгиева', start_date: '2022-06-10', is_mentor: 1, feedback_rating: 4.7, retention_rate: 90 },
-  { name: 'Петър Петров', email: 'petar@triesta.bg', role: 'employee', store: 'Магазин Люлин', position: 'Старши продавач', mentor: 'Анна Димитрова', start_date: '2023-09-01', is_mentor: 1, feedback_rating: 4.9, retention_rate: 88 },
-  // Служители в обучение
-  { name: 'Иван Петров', email: 'ivan@triesta.bg', role: 'employee', store: 'Магазин Искър', position: 'Продавач-консултант', mentor: 'Мария Георгиева', start_date: '2024-04-15' },
-  { name: 'Георги Георгиев', email: 'georgi@triesta.bg', role: 'employee', store: 'Магазин Тракия', position: 'Продавач-консултант', mentor: 'Петър Петров', start_date: '2025-06-20' },
-  { name: 'Стефан Колев', email: 'stefan@triesta.bg', role: 'employee', store: 'Магазин Тракия', position: 'Продавач-консултант', mentor: 'Петър Петров', start_date: '2024-02-05' },
-  { name: 'Николай Стоянов', email: 'nikolay@triesta.bg', role: 'employee', store: 'Магазин Люлин', position: 'Продавач-консултант', mentor: 'Петър Петров', start_date: '2025-03-12' },
-  { name: 'Елена Тодорова', email: 'elena@triesta.bg', role: 'employee', store: 'Магазин Изток', position: 'Продавач-консултант', mentor: 'Анна Димитрова', start_date: '2023-11-20' },
-  { name: 'Виктория Илиева', email: 'viktoria@triesta.bg', role: 'employee', store: 'Магазин Изток', position: 'Продавач-консултант', mentor: 'Анна Димитрова', start_date: '2025-05-28' },
-  { name: 'Мартин Костов', email: 'martin@triesta.bg', role: 'employee', store: 'Магазин Искър', position: 'Продавач-консултант', mentor: 'Мария Георгиева', start_date: '2024-08-14' },
-  { name: 'Десислава Ангелова', email: 'desislava@triesta.bg', role: 'employee', store: 'Магазин Искър', position: 'Старши продавач', mentor: 'Мария Георгиева', start_date: '2021-10-01' },
+  { name: 'Мария Георгиева', email: 'mariya@triesta.bg', phone: '0888100001', role: 'manager', store: 'ЦЕНТРАЛЕН ОФИС', position: 'Регионален управител', mentor: null, start_date: '2019-03-01', is_mentor: 1, mentor_style: 'D', feedback_rating: 4.8, retention_rate: 92 },
+  // Ментори (старши служители, които обучават други) – по двама за всеки DISC стил
+  { name: 'Анна Димитрова', email: 'anna@triesta.bg', phone: '0888100002', role: 'employee', store: 'ДУБРОВНИК', position: 'Старши продавач', mentor: 'Мария Георгиева', start_date: '2022-06-10', is_mentor: 1, mentor_style: 'I', feedback_rating: 4.7, retention_rate: 90 },
+  { name: 'Петър Петров', email: 'petar@triesta.bg', phone: '0888100003', role: 'employee', store: 'САКАР', position: 'Старши продавач', mentor: 'Анна Димитрова', start_date: '2023-09-01', is_mentor: 1, mentor_style: 'S', feedback_rating: 4.9, retention_rate: 88 },
+  { name: 'Даниел Вълчев', email: null, phone: '0888100004', role: 'employee', store: 'ШИПКА', position: 'Старши продавач', mentor: null, start_date: '2021-04-12', is_mentor: 1, mentor_style: 'D', feedback_rating: 4.5, retention_rate: 85 },
+  { name: 'Ралица Христова', email: null, phone: '0888100005', role: 'employee', store: 'ИСКЪР', position: 'Старши продавач', mentor: null, start_date: '2022-01-17', is_mentor: 1, mentor_style: 'I', feedback_rating: 4.6, retention_rate: 87 },
+  { name: 'Теодора Маринова', email: null, phone: '0888100006', role: 'employee', store: 'ТРАКИЯ', position: 'Старши продавач', mentor: null, start_date: '2020-09-03', is_mentor: 1, mentor_style: 'S', feedback_rating: 4.8, retention_rate: 93 },
+  { name: 'Калин Янев', email: null, phone: '0888100007', role: 'employee', store: 'МЛАДОСТ', position: 'Старши продавач', mentor: null, start_date: '2021-11-22', is_mentor: 1, mentor_style: 'C', feedback_rating: 4.4, retention_rate: 84 },
+  { name: 'Йоана Стоева', email: null, phone: '0888100008', role: 'employee', store: 'МИР', position: 'Старши продавач', mentor: null, start_date: '2022-03-08', is_mentor: 1, mentor_style: 'C', feedback_rating: 4.7, retention_rate: 89 },
+  // Служители
+  { name: 'Иван Петров', email: 'ivan@triesta.bg', phone: '0888200001', role: 'employee', store: 'ИСКЪР', position: 'Продавач-консултант', mentor: 'Мария Георгиева', start_date: '2024-04-15' },
+  { name: 'Георги Георгиев', email: 'georgi@triesta.bg', phone: '0888200002', role: 'employee', store: 'ТРАКИЯ', position: 'Продавач-консултант', mentor: 'Петър Петров', start_date: '2025-06-20' },
+  { name: 'Стефан Колев', email: 'stefan@triesta.bg', phone: '0888200003', role: 'employee', store: 'ТРАКИЯ', position: 'Продавач-консултант', mentor: 'Петър Петров', start_date: '2024-02-05' },
+  { name: 'Николай Стоянов', email: 'nikolay@triesta.bg', phone: '0888200004', role: 'employee', store: 'САКАР', position: 'Продавач-консултант', mentor: 'Петър Петров', start_date: '2025-03-12' },
+  { name: 'Елена Тодорова', email: 'elena@triesta.bg', phone: '0888200005', role: 'employee', store: 'ДУБРОВНИК', position: 'Продавач-консултант', mentor: 'Анна Димитрова', start_date: '2023-11-20' },
+  { name: 'Виктория Илиева', email: 'viktoria@triesta.bg', phone: '0888200006', role: 'employee', store: 'ДУБРОВНИК', position: 'Продавач-консултант', mentor: 'Анна Димитрова', start_date: '2025-05-28' },
+  { name: 'Мартин Костов', email: 'martin@triesta.bg', phone: '0888200007', role: 'employee', store: 'ИСКЪР', position: 'Продавач-консултант', mentor: 'Мария Георгиева', start_date: '2024-08-14' },
+  { name: 'Десислава Ангелова', email: 'desislava@triesta.bg', phone: '0888200008', role: 'employee', store: 'ИСКЪР', position: 'Старши продавач', mentor: 'Мария Георгиева', start_date: '2021-10-01' },
 ];
 
 // Прогрес по имейл -> категория slug -> масив със статуси на модулите (по ред).
@@ -317,8 +323,8 @@ export function seed() {
   initSchema();
 
   // Изчистване (при повторно стартиране на seed)
-  db.exec('DELETE FROM progress; DELETE FROM questions; DELETE FROM modules; DELETE FROM categories; DELETE FROM users; DELETE FROM applications; DELETE FROM videos;');
-  db.exec("DELETE FROM sqlite_sequence WHERE name IN ('progress','questions','modules','categories','users','applications','videos')");
+  db.exec('DELETE FROM progress; DELETE FROM questions; DELETE FROM modules; DELETE FROM categories; DELETE FROM users; DELETE FROM applications; DELETE FROM videos; DELETE FROM disc_requests;');
+  db.exec("DELETE FROM sqlite_sequence WHERE name IN ('progress','questions','modules','categories','users','applications','videos','disc_requests')");
 
   const insCat = db.prepare('INSERT INTO categories (slug, title, icon, description, order_index) VALUES (?, ?, ?, ?, ?)');
   const insMod = db.prepare('INSERT INTO modules (category_id, title, summary, content, duration, order_index) VALUES (?, ?, ?, ?, ?, ?)');
@@ -338,13 +344,13 @@ export function seed() {
     });
   });
 
-  const insUser = db.prepare('INSERT INTO users (name, email, password_hash, role, store, position, mentor, start_date, is_mentor, feedback_rating, retention_rate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+  const insUser = db.prepare('INSERT INTO users (name, email, phone, password_hash, role, store, position, mentor, start_date, is_mentor, mentor_style, feedback_rating, retention_rate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
   const hash = bcrypt.hashSync(PASSWORD, 10);
   const userByEmail = {};
   for (const u of USERS) {
-    const id = insUser.run(u.name, u.email.toLowerCase(), hash, u.role, u.store, u.position, u.mentor, u.start_date,
-      u.is_mentor || 0, u.feedback_rating ?? null, u.retention_rate ?? null).lastInsertRowid;
-    userByEmail[u.email] = id;
+    const id = insUser.run(u.name, u.email ? u.email.toLowerCase() : null, u.phone, hash, u.role, u.store, u.position, u.mentor, u.start_date,
+      u.is_mentor || 0, u.mentor_style ?? null, u.feedback_rating ?? null, u.retention_rate ?? null).lastInsertRowid;
+    if (u.email) userByEmail[u.email] = id;
   }
 
   const insProg = db.prepare(`INSERT INTO progress (user_id, module_id, status, score, completed_at)
@@ -374,6 +380,17 @@ export function seed() {
     ['Симона Тодорова', null, 'simona.t@gmail.com', 'Старши продавач', 'Варна', 'Мотивирана съм да раста в екип.', 'new', "2026-07-15 18:10:00"],
   ];
   for (const a of APPLICATIONS) insApp.run(...a);
+
+  // Примерни чакащи заявки от публичния DISC тест
+  const insReq = db.prepare(`INSERT INTO disc_requests (name, phone, disc_result, disc_scores, suggested_mentor_id, created_at)
+                             VALUES (?, ?, ?, ?, ?, ?)`);
+  const REQUESTS = [
+    ['Пешо Иванов', '0899300001', 'D', { D: 8, I: 2, S: 1, C: 1 }, '2026-09-28 10:15:00'],
+    ['Мила Стоянова', '0899300002', 'I', { D: 1, I: 7, S: 3, C: 1 }, '2026-09-28 16:40:00'],
+    ['Васил Николов', '0899300003', 'C', { D: 2, I: 1, S: 2, C: 7 }, '2026-09-29 09:05:00'],
+  ];
+  for (const [name, phone, style, scores, at] of REQUESTS)
+    insReq.run(name, phone, style, JSON.stringify(scores), suggestMentor(style)?.id ?? null, at);
 
   // Примерни видео уроци (от инфографиката „Обучителни видеа")
   const insVideo = db.prepare('INSERT INTO videos (title, description, video_url, duration, category, order_index) VALUES (?, ?, ?, ?, ?, ?)');
