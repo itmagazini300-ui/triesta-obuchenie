@@ -52,10 +52,12 @@ function bonusFor(successRate) {
 }
 
 router.get('/mentors', (_req, res) => {
-  const mentors = db.prepare("SELECT id, name, store, position, feedback_rating, retention_rate FROM users WHERE is_mentor = 1 ORDER BY name").all();
+  const mentors = db.prepare("SELECT id, name, store, position, mentor_style, feedback_rating, retention_rate FROM users WHERE is_mentor = 1 ORDER BY name").all();
 
   const rows = mentors.map((mtr) => {
-    const mentees = db.prepare("SELECT id, name, position FROM users WHERE mentor = ? AND role = 'employee' AND id != ?").all(mtr.name, mtr.id);
+    const mentees = db.prepare("SELECT id, name, position, store, start_date, mentorship_done_at FROM users WHERE mentor = ? AND role = 'employee' AND id != ?").all(mtr.name, mtr.id);
+    const activeList = mentees.filter((e) => !e.mentorship_done_at).map((e) => ({ id: e.id, name: e.name, store: e.store, start_date: e.start_date }));
+    const doneList = mentees.filter((e) => e.mentorship_done_at).map((e) => ({ id: e.id, name: e.name, mentorship_done_at: e.mentorship_done_at }));
     const menteeData = mentees.map((e) => {
       const c = getCatalog(e.id);
       return { id: e.id, name: e.name, position: e.position, overall: c.overall, level: c.level };
@@ -69,7 +71,8 @@ router.get('/mentors', (_req, res) => {
     // Композитен резултат за рейтинга и „Ментор на годината"
     const score = Math.round(successRate * 0.5 + (feedback / 5) * 100 * 0.3 + retention * 0.2);
     return {
-      id: mtr.id, name: mtr.name, store: mtr.store, position: mtr.position,
+      id: mtr.id, name: mtr.name, store: mtr.store, position: mtr.position, mentor_style: mtr.mentor_style,
+      active: activeList.length, activeList, doneList,
       mentees: count, passed, successRate, avgProgress,
       feedback, retention, bonus: bonusFor(successRate), score,
       menteeList: menteeData.sort((a, b) => b.overall - a.overall),
@@ -85,6 +88,7 @@ router.get('/mentors', (_req, res) => {
     stats: {
       total: rows.length,
       totalMentees: rows.reduce((s, r) => s + r.mentees, 0),
+      totalActive: rows.reduce((s, r) => s + r.active, 0),
       avgSuccess: rows.length ? Math.round(rows.reduce((s, r) => s + r.successRate, 0) / rows.length) : 0,
       avgFeedback: rows.length ? (rows.reduce((s, r) => s + r.feedback, 0) / rows.length).toFixed(1) : '0.0',
     },
@@ -95,6 +99,15 @@ router.get('/mentors', (_req, res) => {
     ],
     yearBonus: 500,
   });
+});
+
+// Управителят маркира, че служителят е завършил обучението при ментора си.
+router.post('/mentees/:id/complete', (req, res) => {
+  const u = db.prepare("SELECT id, mentor, mentorship_done_at FROM users WHERE id = ? AND role = 'employee' AND mentor IS NOT NULL").get(Number(req.params.id));
+  if (!u) return res.status(404).json({ error: 'Служителят не е намерен.' });
+  if (u.mentorship_done_at) return res.status(409).json({ error: 'Вече е маркиран като завършил.' });
+  db.prepare("UPDATE users SET mentorship_done_at = datetime('now') WHERE id = ?").run(u.id);
+  res.json({ ok: true });
 });
 
 // Кандидати (от публичната форма за работа)
