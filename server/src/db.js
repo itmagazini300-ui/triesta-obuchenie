@@ -7,7 +7,9 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const dataDir = join(__dirname, '..', 'data');
 mkdirSync(dataDir, { recursive: true });
 
-export const db = new DatabaseSync(join(dataDir, 'triesta.db'));
+// При `node --test` (NODE_TEST_CONTEXT) всеки тестов файл получава празна база в паметта.
+const dbFile = process.env.DB_PATH || (process.env.NODE_TEST_CONTEXT ? ':memory:' : join(dataDir, 'triesta.db'));
+export const db = new DatabaseSync(dbFile);
 
 // По-добра надеждност при едновременен достъп
 db.exec('PRAGMA journal_mode = WAL');

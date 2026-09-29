@@ -8,7 +8,8 @@
   },
   "scripts": {
     "start": "node --no-warnings src/index.js",
-    "seed": "node --no-warnings src/seed.js"
+    "seed": "node --no-warnings src/seed.js",
+    "test": "node --no-warnings --test test/*.test.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
