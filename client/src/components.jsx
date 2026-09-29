@@ -51,7 +51,7 @@ export function Brand({ dark }) {
   return (
     <div className="brand">
       <span className="n300 ac">300</span>
-      <span className="nm">ТРИСТА<small>АКАДЕМИЯ ЗА ОБУЧЕНИЯ</small></span>
+      <span className="nm">ТРИСТА<small>АКАДЕМИЯ 300</small></span>
     </div>
   );
 }

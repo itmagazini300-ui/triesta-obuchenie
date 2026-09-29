@@ -29,7 +29,7 @@ export default function Login() {
             <span className="n300 ac" style={{ fontSize: 30 }}>300</span>
             <span className="nm" style={{ fontSize: 15 }}>ТРИСТА<small style={{ fontSize: 9 }}>ВЕРИГА СУПЕРМАРКЕТИ</small></span>
           </div>
-          <div className="big">Академия<br /><span className="ac">за обучения</span></div>
+          <div className="big">Академия<br /><span className="ac">300</span></div>
           <p className="lead">Структурирано обучение по модули, нива и сертификати — ясен път за развитие на всеки служител.</p>
           <div className="login-feats">
             <div className="lf"><div className="ic"><Icon name="grad" size={21} /></div>Учи в свое темпо, стъпка по стъпка</div>
@@ -37,7 +37,6 @@ export default function Login() {
             <div className="lf"><div className="ic"><Icon name="trend" size={21} /></div>Проследяване на прогреса в реално време</div>
           </div>
         </div>
-        <div style={{ color: '#8a807a', fontSize: 12, fontWeight: 700, letterSpacing: 1 }}>ДИГИТАЛИЗАЦИЯ · ОБУЧЕНИЕ · РАЗВИТИЕ · ЗАДЪРЖАНЕ</div>
       </div>
 
       <div className="login-panel">
