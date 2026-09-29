@@ -21,6 +21,7 @@ import Onboarding from './pages/Onboarding.jsx';
 import Strategy from './pages/Strategy.jsx';
 import Candidates from './pages/Candidates.jsx';
 import Apply from './pages/Apply.jsx';
+import DiscStart from './pages/DiscStart.jsx';
 import Videos from './pages/Videos.jsx';
 import AdminVideos from './pages/AdminVideos.jsx';
 
@@ -37,7 +38,7 @@ export default function App() {
 
   const value = {
     user,
-    async login(email, password) { const d = await api.login(email, password); setUser(d.user); return d.user; },
+    async login(login, password) { const d = await api.login(login, password); setUser(d.user); return d.user; },
     async logout() { await api.logout(); setUser(null); },
     patchUser(fields) { setUser((u) => (u ? { ...u, ...fields } : u)); },
   };
@@ -49,6 +50,7 @@ export default function App() {
       <Routes>
         <Route path="/login" element={user ? <Navigate to="/" replace /> : <Login />} />
         <Route path="/apply" element={<Apply />} />
+        <Route path="/disc-start" element={<DiscStart />} />
         <Route element={<Protected user={user} />}>
           <Route path="/" element={user?.role === 'manager' ? <Navigate to="/strategy" replace /> : <EmployeeHome />} />
           <Route path="/category/:id" element={<CategoryView />} />

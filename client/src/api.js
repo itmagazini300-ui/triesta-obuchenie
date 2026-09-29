@@ -11,7 +11,7 @@ async function request(path, options = {}) {
 
 export const api = {
   me: () => request('/auth/me'),
-  login: (email, password) => request('/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) }),
+  login: (login, password) => request('/auth/login', { method: 'POST', body: JSON.stringify({ login, password }) }),
   logout: () => request('/auth/logout', { method: 'POST' }),
 
   catalog: () => request('/learn/catalog'),
@@ -30,9 +30,17 @@ export const api = {
   managerApplications: () => request('/manager/applications'),
   updateApplication: (id, status) => request('/manager/applications/' + id, { method: 'PATCH', body: JSON.stringify({ status }) }),
   deleteApplication: (id) => request('/manager/applications/' + id, { method: 'DELETE' }),
+  discRequests: () => request('/manager/disc-requests'),
+  discRequestCount: () => request('/manager/disc-requests/count'),
+  approveDiscRequest: (id, mentorId) => request('/manager/disc-requests/' + id + '/approve', { method: 'POST', body: JSON.stringify({ mentorId }) }),
+  rejectDiscRequest: (id) => request('/manager/disc-requests/' + id + '/reject', { method: 'POST' }),
+  completeMentee: (id) => request('/manager/mentees/' + id + '/complete', { method: 'POST' }),
 
   // публично – без вход
   apply: (data) => request('/apply', { method: 'POST', body: JSON.stringify(data) }),
+  publicDisc: () => request('/public/disc'),
+  publicDiscCheck: (phone) => request('/public/disc/check', { method: 'POST', body: JSON.stringify({ phone }) }),
+  publicDiscSubmit: (data) => request('/public/disc', { method: 'POST', body: JSON.stringify(data) }),
 
   // ── админ: съдържание ──
   adminCategories: () => request('/admin/categories'),
@@ -66,4 +74,10 @@ export const api = {
   adminCreateUser: (data) => request('/admin/users', { method: 'POST', body: JSON.stringify(data) }),
   adminUpdateUser: (id, data) => request('/admin/users/' + id, { method: 'PUT', body: JSON.stringify(data) }),
   adminDeleteUser: (id) => request('/admin/users/' + id, { method: 'DELETE' }),
+
+  // ── админ: магазини ──
+  adminStores: () => request('/admin/stores'),
+  adminCreateStore: (data) => request('/admin/stores', { method: 'POST', body: JSON.stringify(data) }),
+  adminUpdateStore: (id, data) => request('/admin/stores/' + id, { method: 'PUT', body: JSON.stringify(data) }),
+  adminDeleteStore: (id) => request('/admin/stores/' + id, { method: 'DELETE' }),
 };

@@ -6,7 +6,7 @@ import { Icon } from '../icons.jsx';
 export default function Login() {
   const { login } = useAuth();
   const nav = useNavigate();
-  const [email, setEmail] = useState('');
+  const [user, setUser] = useState('');
   const [password, setPassword] = useState('');
   const [err, setErr] = useState('');
   const [busy, setBusy] = useState(false);
@@ -14,12 +14,12 @@ export default function Login() {
   async function submit(e) {
     e.preventDefault();
     setErr(''); setBusy(true);
-    try { await login(email, password); nav('/'); }
+    try { await login(user, password); nav('/'); }
     catch (e) { setErr(e.message); }
     finally { setBusy(false); }
   }
 
-  function fill(mail) { setEmail(mail); setPassword('triesta123'); }
+  function fill(value) { setUser(value); setPassword('triesta123'); }
 
   return (
     <div className="login-wrap">
@@ -42,9 +42,9 @@ export default function Login() {
       <div className="login-panel">
         <form className="login-form" onSubmit={submit}>
           <h2>Вход</h2>
-          <p className="muted" style={{ marginTop: 6 }}>Влез с фирмения си имейл.</p>
-          <label>Имейл</label>
-          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="ime@triesta.bg" autoComplete="username" required />
+          <p className="muted" style={{ marginTop: 6 }}>Служителите влизат с телефона си, управителите – с имейл.</p>
+          <label>Телефон или имейл</label>
+          <input type="text" value={user} onChange={(e) => setUser(e.target.value)} placeholder="0888 123 456 или ime@triesta.bg" autoComplete="username" required />
           <label>Парола</label>
           <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" autoComplete="current-password" required />
           {err && <div className="err">{err}</div>}
@@ -54,7 +54,7 @@ export default function Login() {
 
           <div className="demo-hint">
             <b>Демо профили</b> (парола: <b>triesta123</b>)<br />
-            Служител: <button type="button" onClick={() => fill('ivan@triesta.bg')}>ivan@triesta.bg</button><br />
+            Служител: <button type="button" onClick={() => fill('0888 200 001')}>0888 200 001</button><br />
             Управител: <button type="button" onClick={() => fill('mariya@triesta.bg')}>mariya@triesta.bg</button>
           </div>
         </form>
