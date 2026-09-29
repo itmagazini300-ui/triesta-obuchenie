@@ -10,6 +10,7 @@ import managerRoutes from './routes/manager.js';
 import adminRoutes from './routes/admin.js';
 import applyRoutes from './routes/apply.js';
 import storesRoutes from './routes/stores.js';
+import discRequestsRoutes from './routes/discRequests.js';
 import publicDiscRoutes from './routes/publicDisc.js';
 
 export function createApp() {
@@ -22,6 +23,7 @@ export function createApp() {
   app.get('/api/health', (_req, res) => res.json({ ok: true }));
   app.use('/api/auth', authRoutes);
   app.use('/api/learn', learnRoutes);
+  app.use('/api/manager/disc-requests', discRequestsRoutes);
   app.use('/api/manager', managerRoutes);
   app.use('/api/admin/stores', storesRoutes);
   app.use('/api/admin', adminRoutes);

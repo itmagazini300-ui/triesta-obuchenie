@@ -24,7 +24,7 @@ export function attachUser(req, _res, next) {
     try {
       const payload = jwt.verify(token, JWT_SECRET);
       const user = db
-        .prepare('SELECT id, name, email, role, store, position, mentor, start_date, seen_welcome, disc_result FROM users WHERE id = ?')
+        .prepare('SELECT id, name, email, phone, role, store, position, mentor, start_date, seen_welcome, disc_result FROM users WHERE id = ?')
         .get(payload.id);
       if (user) req.user = user;
     } catch {

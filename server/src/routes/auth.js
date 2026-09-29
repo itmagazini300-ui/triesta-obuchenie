@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import bcrypt from 'bcryptjs';
 import { db } from '../db.js';
+import { normalizePhone } from '../phone.js';
 import { signToken, cookieOptions, COOKIE_NAME, requireAuth } from '../auth.js';
 
 const router = Router();
@@ -28,15 +29,16 @@ router.get('/me', requireAuth, (req, res) => {
   res.json({ user: req.user });
 });
 
-// Имейл, ако има „@"; иначе – телефон (Task 6).
+// Имейл, ако има „@“; иначе – телефон във всякакъв запис (0888…, +359…, с интервали).
 function findUserByLogin(login) {
   if (login.includes('@')) return db.prepare('SELECT * FROM users WHERE email = ?').get(login.toLowerCase());
-  return null;
+  const phone = normalizePhone(login);
+  return phone ? db.prepare('SELECT * FROM users WHERE phone = ?').get(phone) : null;
 }
 
 function publicUser(u) {
   return {
-    id: u.id, name: u.name, email: u.email, role: u.role,
+    id: u.id, name: u.name, email: u.email, phone: u.phone, role: u.role,
     store: u.store, position: u.position, mentor: u.mentor, start_date: u.start_date,
     seen_welcome: u.seen_welcome, disc_result: u.disc_result,
   };
