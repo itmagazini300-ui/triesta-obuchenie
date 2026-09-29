@@ -2,6 +2,8 @@ import { Router } from 'express';
 import bcrypt from 'bcryptjs';
 import { requireManager } from '../auth.js';
 import { db } from '../db.js';
+import { normalizePhone } from '../phone.js';
+import { storeExists } from './stores.js';
 
 const router = Router();
 router.use(requireManager);
@@ -244,9 +246,43 @@ router.post('/modules/:id/import-questions', (req, res) => {
 // ─── ПОТРЕБИТЕЛИ / АКАУНТИ ─────────────────────────────────
 function publicUser(u) {
   return {
-    id: u.id, name: u.name, email: u.email, role: u.role, store: u.store, position: u.position,
+    id: u.id, name: u.name, email: u.email, phone: u.phone, mentor_style: u.mentor_style, role: u.role, store: u.store, position: u.position,
     mentor: u.mentor, start_date: u.start_date, is_mentor: u.is_mentor,
     feedback_rating: u.feedback_rating, retention_rate: u.retention_rate,
+  };
+}
+
+const STYLES = ['D', 'I', 'S', 'C'];
+const numOrNull = (v) => (v != null && v !== '' ? Number(v) : null);
+
+// Проверява и изчиства данните за потребител. id = null при нов.
+function cleanUser(u, id) {
+  if (!u.name?.trim()) return { error: 'Въведи име.' };
+  const role = u.role === 'manager' ? 'manager' : 'employee';
+  const email = String(u.email || '').trim().toLowerCase() || null;
+  if (email && !/^[^@s]+@[^@s]+.[^@s]+$/.test(email)) return { error: 'Въведи валиден имейл.' };
+  if (role === 'manager' && !email) return { error: 'Управителят влиза с имейл – въведи имейл.' };
+  const phoneRaw = String(u.phone || '').trim();
+  const phone = phoneRaw ? normalizePhone(phoneRaw) : null;
+  if (phoneRaw && !phone) return { error: 'Въведи валиден телефон (напр. 0888 123 456).' };
+  if (role === 'employee' && !phone) return { error: 'Служителят влиза с телефон – въведи телефон.' };
+  if (email && db.prepare('SELECT 1 FROM users WHERE email = ? AND id IS NOT ?').get(email, id))
+    return { error: 'Друг потребител вече ползва този имейл.' };
+  if (phone && db.prepare('SELECT 1 FROM users WHERE phone = ? AND id IS NOT ?').get(phone, id))
+    return { error: 'Друг потребител вече ползва този телефон.' };
+  const store = String(u.store || '').trim() || null;
+  if (store && !storeExists(store)) return { error: 'Избери магазин от списъка.' };
+  const is_mentor = u.is_mentor ? 1 : 0;
+  const mentor_style = is_mentor ? (STYLES.includes(u.mentor_style) ? u.mentor_style : null) : null;
+  if (is_mentor && !mentor_style) return { error: 'Избери DISC стил на ментора.' };
+  if (is_mentor && !store) return { error: 'Менторът трябва да има магазин.' };
+  return {
+    value: {
+      name: u.name.trim(), email, phone, role, store,
+      position: (u.position || '').trim() || null, mentor: (u.mentor || '').trim() || null,
+      start_date: (u.start_date || '').trim() || null, is_mentor, mentor_style,
+      feedback_rating: numOrNull(u.feedback_rating), retention_rate: numOrNull(u.retention_rate),
+    },
   };
 }
 
@@ -256,22 +292,17 @@ router.get('/users', (_req, res) => {
 });
 
 router.post('/users', (req, res) => {
-  const u = req.body || {};
-  if (!u.name?.trim()) return res.status(400).json({ error: 'Въведи име.' });
-  const email = String(u.email || '').trim().toLowerCase();
-  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return res.status(400).json({ error: 'Въведи валиден имейл.' });
-  if (db.prepare('SELECT 1 FROM users WHERE email = ?').get(email)) return res.status(400).json({ error: 'Вече има потребител с този имейл.' });
-  if (!u.password || String(u.password).length < 6) return res.status(400).json({ error: 'Паролата трябва да е поне 6 знака.' });
-  const role = u.role === 'manager' ? 'manager' : 'employee';
-  const id = db.prepare(`INSERT INTO users (name, email, password_hash, role, store, position, mentor, start_date, is_mentor, feedback_rating, retention_rate)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`).run(
-    u.name.trim(), email, bcrypt.hashSync(String(u.password), 10), role,
-    (u.store || '').trim() || null, (u.position || '').trim() || null, (u.mentor || '').trim() || null,
-    (u.start_date || '').trim() || null, u.is_mentor ? 1 : 0,
-    u.feedback_rating != null && u.feedback_rating !== '' ? Number(u.feedback_rating) : null,
-    u.retention_rate != null && u.retention_rate !== '' ? Number(u.retention_rate) : null,
+  const c = cleanUser(req.body || {}, null);
+  if (c.error) return res.status(400).json({ error: c.error });
+  const pw = req.body?.password;
+  if (!pw || String(pw).length < 6) return res.status(400).json({ error: 'Паролата трябва да е поне 6 знака.' });
+  const v = c.value;
+  const id = db.prepare(`INSERT INTO users (name, email, phone, password_hash, role, store, position, mentor, start_date, is_mentor, mentor_style, feedback_rating, retention_rate)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`).run(
+    v.name, v.email, v.phone, bcrypt.hashSync(String(pw), 10), v.role, v.store, v.position, v.mentor,
+    v.start_date, v.is_mentor, v.mentor_style, v.feedback_rating, v.retention_rate,
   ).lastInsertRowid;
-  res.json({ id });
+  res.json({ id: Number(id) });
 });
 
 router.put('/users/:id', (req, res) => {
@@ -279,24 +310,16 @@ router.put('/users/:id', (req, res) => {
   const existing = db.prepare('SELECT * FROM users WHERE id = ?').get(id);
   if (!existing) return res.status(404).json({ error: 'Потребителят не е намерен.' });
   const u = req.body || {};
-  if (!u.name?.trim()) return res.status(400).json({ error: 'Въведи име.' });
-  const email = String(u.email || '').trim().toLowerCase();
-  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return res.status(400).json({ error: 'Въведи валиден имейл.' });
-  const clash = db.prepare('SELECT 1 FROM users WHERE email = ? AND id != ?').get(email, id);
-  if (clash) return res.status(400).json({ error: 'Друг потребител вече ползва този имейл.' });
-  const role = u.role === 'manager' ? 'manager' : 'employee';
-
-  db.prepare(`UPDATE users SET name=?, email=?, role=?, store=?, position=?, mentor=?, start_date=?, is_mentor=?, feedback_rating=?, retention_rate=? WHERE id=?`).run(
-    u.name.trim(), email, role, (u.store || '').trim() || null, (u.position || '').trim() || null,
-    (u.mentor || '').trim() || null, (u.start_date || '').trim() || null, u.is_mentor ? 1 : 0,
-    u.feedback_rating != null && u.feedback_rating !== '' ? Number(u.feedback_rating) : null,
-    u.retention_rate != null && u.retention_rate !== '' ? Number(u.retention_rate) : null, id,
+  const c = cleanUser(u, id);
+  if (c.error) return res.status(400).json({ error: c.error });
+  if (u.password && String(u.password).length < 6) return res.status(400).json({ error: 'Паролата трябва да е поне 6 знака.' });
+  const v = c.value;
+  db.prepare(`UPDATE users SET name=?, email=?, phone=?, role=?, store=?, position=?, mentor=?, start_date=?, is_mentor=?, mentor_style=?, feedback_rating=?, retention_rate=? WHERE id=?`).run(
+    v.name, v.email, v.phone, v.role, v.store, v.position, v.mentor, v.start_date,
+    v.is_mentor, v.mentor_style, v.feedback_rating, v.retention_rate, id,
   );
   // Смяна на парола – само ако е подадена нова
-  if (u.password) {
-    if (String(u.password).length < 6) return res.status(400).json({ error: 'Паролата трябва да е поне 6 знака.' });
-    db.prepare('UPDATE users SET password_hash=? WHERE id=?').run(bcrypt.hashSync(String(u.password), 10), id);
-  }
+  if (u.password) db.prepare('UPDATE users SET password_hash=? WHERE id=?').run(bcrypt.hashSync(String(u.password), 10), id);
   res.json({ ok: true });
 });
 
