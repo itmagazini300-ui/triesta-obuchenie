@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react';
-import { Routes, Route, Navigate, NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { Routes, Route, Navigate, NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { api } from './api.js';
 import { Brand, Icon, initials, Loading } from './components.jsx';
 
@@ -20,6 +20,7 @@ import DiscTest from './pages/DiscTest.jsx';
 import Onboarding from './pages/Onboarding.jsx';
 import Strategy from './pages/Strategy.jsx';
 import Candidates from './pages/Candidates.jsx';
+import Requests from './pages/Requests.jsx';
 import Apply from './pages/Apply.jsx';
 import DiscStart from './pages/DiscStart.jsx';
 import Videos from './pages/Videos.jsx';
@@ -64,6 +65,7 @@ export default function App() {
           <Route path="/manager" element={<ManagerHome />} />
           <Route path="/manager/employee/:id" element={<ManagerEmployee />} />
           <Route path="/candidates" element={<Candidates />} />
+          <Route path="/requests" element={<Requests />} />
           <Route path="/mentors" element={<Mentors />} />
           <Route path="/admin" element={<AdminCategories />} />
           <Route path="/admin/category/:id" element={<AdminCategory />} />
@@ -87,6 +89,15 @@ function Layout() {
   const nav = useNavigate();
   const isManager = user.role === 'manager';
   const [menuOpen, setMenuOpen] = useState(false);
+  const location = useLocation();
+  const [pendingCount, setPendingCount] = useState(0);
+  useEffect(() => {
+    if (!isManager) return;
+    const refresh = () => api.discRequestCount().then((d) => setPendingCount(d.pending)).catch(() => {});
+    refresh();
+    window.addEventListener('requests-changed', refresh);
+    return () => window.removeEventListener('requests-changed', refresh);
+  }, [isManager, location.pathname]);
 
   async function doLogout() { setMenuOpen(false); await logout(); nav('/login'); }
 
@@ -104,6 +115,9 @@ function Layout() {
               <NavLink to="/manager" className={({ isActive }) => isActive ? 'active' : ''}>Табло</NavLink>
               <NavLink to="/mentors" className={({ isActive }) => isActive ? 'active' : ''}>Ментори</NavLink>
               <NavLink to="/candidates" className={({ isActive }) => isActive ? 'active' : ''}>Кандидати</NavLink>
+              <NavLink to="/requests" className={({ isActive }) => isActive ? 'active' : ''}>
+                Заявки{pendingCount > 0 && <span className="pill a" style={{ marginLeft: 6, padding: '1px 7px' }}>{pendingCount}</span>}
+              </NavLink>
               <NavLink to="/admin" className={({ isActive }) => isActive ? 'active' : ''}>Уроци</NavLink>
               <NavLink to="/video-lessons" className={({ isActive }) => isActive ? 'active' : ''}>Видео Уроци</NavLink>
               <NavLink to="/people" className={({ isActive }) => isActive ? 'active' : ''}>Служители</NavLink>
