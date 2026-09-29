@@ -10,6 +10,7 @@ import managerRoutes from './routes/manager.js';
 import adminRoutes from './routes/admin.js';
 import applyRoutes from './routes/apply.js';
 import storesRoutes from './routes/stores.js';
+import publicDiscRoutes from './routes/publicDisc.js';
 
 export function createApp() {
   const app = express();
@@ -25,6 +26,7 @@ export function createApp() {
   app.use('/api/admin/stores', storesRoutes);
   app.use('/api/admin', adminRoutes);
   app.use('/api/apply', applyRoutes); // публичен – без вход
+  app.use('/api/public/disc', publicDiscRoutes); // публичен – без вход
 
   // В режим на качване сървърът сервира и готовия сайт (client/dist),
   // така че всичко работи на един адрес.
