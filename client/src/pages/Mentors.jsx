@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { api } from '../api.js';
 import { Icon } from '../icons.jsx';
 import { Bar, Loading, initials } from '../components.jsx';
+import QRCode from 'qrcode';
+import { DiscBadge } from '../disc.jsx';
 
 function Stars({ value }) {
   return (
@@ -16,7 +18,19 @@ function Stars({ value }) {
 
 export default function Mentors() {
   const [data, setData] = useState(null);
-  useEffect(() => { api.managerMentors().then(setData); }, []);
+  const [qr, setQr] = useState('');
+  const discUrl = window.location.origin + '/disc-start';
+  function load() { api.managerMentors().then(setData); }
+  useEffect(() => {
+    load();
+    QRCode.toDataURL(discUrl, { margin: 1, width: 600, color: { dark: '#1D1D1B', light: '#FFFFFF' } }).then(setQr).catch(() => {});
+  }, []);
+
+  async function complete(p) {
+    if (!confirm(`„${p.name}“ завърши ли обучението при ментора си?`)) return;
+    try { await api.completeMentee(p.id); load(); }
+    catch (e) { alert(e.message); }
+  }
   if (!data) return <Loading />;
 
   const { mentors, stats, bonusBands, yearBonus, mentorOfYearId } = data;
@@ -54,6 +68,47 @@ export default function Mentors() {
           </div>
         </div>
       )}
+
+      {/* QR код за новите служители */}
+      <div className="card" style={{ padding: 20, marginBottom: 22, display: 'flex', gap: 20, alignItems: 'center', flexWrap: 'wrap' }}>
+        {qr && <img src={qr} alt="QR код за DISC теста" width={130} height={130} style={{ borderRadius: 12, border: '1px solid var(--line)' }} />}
+        <div style={{ flex: '1 1 260px' }}>
+          <b style={{ fontSize: 17 }}>QR код за нови служители</b>
+          <p className="muted" style={{ margin: '6px 0 12px' }}>Кандидат, одобрен на интервю, сканира кода и прави DISC теста. Заявката идва в „Заявки“.</p>
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+            {qr && <a className="btn sm" href={qr} download="QR-DISC-test-Akademiya-300.png">Изтегли за печат</a>}
+            <span className="muted" style={{ fontSize: 13, alignSelf: 'center' }}>{discUrl}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Кой кого обучава в момента */}
+      <div className="eyebrow" style={{ marginBottom: 10 }}>Кой кого обучава сега · {stats.totalActive} в обучение</div>
+      <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit,minmax(280px,1fr))', marginBottom: 22 }}>
+        {[...mentors].sort((a, b) => (a.mentor_style || 'Z').localeCompare(b.mentor_style || 'Z') || a.name.localeCompare(b.name, 'bg')).map((m) => (
+          <div key={m.id} className="card" style={{ padding: 18 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+              <b style={{ fontSize: 16 }}>{m.name}</b>
+              <DiscBadge style={m.mentor_style} />
+            </div>
+            <div className="muted" style={{ fontSize: 13, margin: '4px 0 10px' }}>{m.store || 'без магазин'} · обучава <b>{m.active}</b></div>
+            {m.activeList.length === 0
+              ? <div className="muted" style={{ fontSize: 13.5 }}>В момента не обучава никого.</div>
+              : m.activeList.map((p) => (
+                  <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 0', borderTop: '1px solid var(--line)' }}>
+                    <span style={{ flex: 1 }}>{p.name}<span className="muted" style={{ fontSize: 12.5 }}>{p.start_date ? ` · от ${p.start_date}` : ''}</span></span>
+                    <button className="btn ghost sm" onClick={() => complete(p)}>Завършил</button>
+                  </div>
+                ))}
+            {m.doneList.length > 0 && (
+              <details style={{ marginTop: 8 }}>
+                <summary className="muted" style={{ cursor: 'pointer', fontSize: 13 }}>Завършили ({m.doneList.length})</summary>
+                {m.doneList.map((p) => <div key={p.id} className="muted" style={{ fontSize: 13, padding: '3px 0' }}>{p.name} · {p.mentorship_done_at.slice(0, 10)}</div>)}
+              </details>
+            )}
+          </div>
+        ))}
+      </div>
 
       {/* Рейтинг на менторите */}
       <div className="eyebrow" style={{ marginBottom: 10 }}>Рейтинг на менторите</div>
