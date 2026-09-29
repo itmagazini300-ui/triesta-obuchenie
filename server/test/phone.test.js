@@ -9,6 +9,8 @@ test('нормализира различни записи до 0XXXXXXXXX', () 
   assert.equal(normalizePhone('359 888 123 456'), '0888123456');
   assert.equal(normalizePhone('00359888123456'), '0888123456');
   assert.equal(normalizePhone('(0888) 12-34-56'), '0888123456');
+  assert.equal(normalizePhone('+359 (0)888 123 456'), '0888123456');
+  assert.equal(normalizePhone('00359 0888 123 456'), '0888123456');
 });
 
 test('връща null за празен или невалиден номер', () => {

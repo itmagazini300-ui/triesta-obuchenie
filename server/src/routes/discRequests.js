@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs';
 import { randomInt } from 'node:crypto';
 import { requireManager } from '../auth.js';
 import { db } from '../db.js';
-import { listMentors, activeMenteeCount } from '../mentorMatch.js';
+import { listMentors, activeMenteeCount, suggestMentor } from '../mentorMatch.js';
 
 // Заявки от публичния DISC тест – чакат одобрение от управителя.
 const router = Router();
@@ -16,9 +16,17 @@ function genPassword() {
 }
 
 function view(r) {
-  const m = r.suggested_mentor_id
-    ? db.prepare('SELECT id, name, store, mentor_style FROM users WHERE id = ? AND is_mentor = 1').get(r.suggested_mentor_id)
-    : null;
+  // Чакащите: предложението се смята при четене (натоварването се променя след всяко одобрение).
+  // Историята пази записаното при подаването.
+  let m;
+  if (r.status === 'pending') {
+    const s = suggestMentor(r.disc_result);
+    m = s ? { id: s.id, name: s.name, store: s.store, mentor_style: s.mentor_style } : null;
+  } else {
+    m = r.suggested_mentor_id
+      ? db.prepare('SELECT id, name, store, mentor_style FROM users WHERE id = ? AND is_mentor = 1').get(r.suggested_mentor_id)
+      : null;
+  }
   return {
     id: r.id, name: r.name, phone: r.phone, disc_result: r.disc_result, created_at: r.created_at,
     status: r.status, decided_at: r.decided_at, user_id: r.user_id,

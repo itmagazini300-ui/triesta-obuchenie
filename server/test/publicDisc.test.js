@@ -32,6 +32,11 @@ test('заявка: записва стила и предложения мент
   assert.equal(JSON.parse(row.disc_scores).D, 12);
 });
 
+test('име, което не е текст → 400', async () => {
+  const r = await call('POST', '/public/disc', { name: {}, phone: '0899111003', answers: allFirst() });
+  assert.equal(r.status, 400);
+});
+
 test('без ментор с този стил → заявката се записва без предложение', async () => {
   const r = await call('POST', '/public/disc', { name: 'Мила', phone: '0899111002', answers: allFirst() });
   assert.equal(r.status, 200);

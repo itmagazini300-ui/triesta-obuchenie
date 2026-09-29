@@ -75,6 +75,9 @@ export default function Mentors() {
         <div style={{ flex: '1 1 260px' }}>
           <b style={{ fontSize: 17 }}>QR код за нови служители</b>
           <p className="muted" style={{ margin: '6px 0 12px' }}>Кандидат, одобрен на интервю, сканира кода и прави DISC теста. Заявката идва в „Заявки“.</p>
+          {['localhost', '127.0.0.1'].includes(window.location.hostname) && (
+            <p style={{ margin: '0 0 12px', fontSize: 13, color: 'var(--red, #b3261e)' }}>Отвори тази страница от публичния адрес на сайта, преди да печаташ QR кода.</p>
+          )}
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
             {qr && <a className="btn sm" href={qr} download="QR-DISC-test-Akademiya-300.png">Изтегли за печат</a>}
             <span className="muted" style={{ fontSize: 13, alignSelf: 'center' }}>{discUrl}</span>

@@ -133,7 +133,7 @@ export default function AdminUsers() {
                 <td className="muted">{u.mentor || '—'}</td>
                 <td>
                   <div className="admin-actions" style={{ justifyContent: 'flex-end' }}>
-                    <button className="icon-btn" title="Редакция" onClick={() => { setErr(''); setEditing({ ...u, password: '', phone: u.phone || '', email: u.email || '', mentor_style: u.mentor_style || '', feedback_rating: u.feedback_rating ?? '', retention_rate: u.retention_rate ?? '' }); }}><Icon name="edit" size={18} /></button>
+                    <button className="icon-btn" title="Редакция" onClick={() => { setErr(''); setEditing({ ...u, store: stores.some((s) => s.name === u.store) ? u.store : '', password: '',phone: u.phone || '', email: u.email || '', mentor_style: u.mentor_style || '', feedback_rating: u.feedback_rating ?? '', retention_rate: u.retention_rate ?? '' }); }}><Icon name="edit" size={18} /></button>
                     <button className="icon-btn danger" title="Изтрий" disabled={u.id === me.id} onClick={() => remove(u)}><Icon name="trash" size={18} /></button>
                   </div>
                 </td>

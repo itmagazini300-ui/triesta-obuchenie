@@ -35,6 +35,23 @@ test('списък и брояч на чакащите', async () => {
   assert.equal(data.mentors.length, 2);
 });
 
+test('предложението за чакащите се смята при четене: след одобрение остатъкът получава другия ментор', async () => {
+  const mentorD2 = addUser({ name: 'Яна Ментор', is_mentor: 1, mentor_style: 'D', store: 'ИСКЪР', phone: '0888000003' });
+  try {
+    const a = addRequest('Първи', '0899111011', 'D', mentorD);
+    const b = addRequest('Втори', '0899111012', 'D', mentorD);
+    const first = (await mgr('GET', '/manager/disc-requests')).data.pending.find((r) => r.id === a);
+    assert.equal(first.suggested_mentor.id, mentorD); // 0 обучаеми, по азбучен ред „Дим“ < „Яна“
+    assert.equal((await mgr('POST', `/manager/disc-requests/${a}/approve`, { mentorId: first.suggested_mentor.id })).status, 200);
+    const { data } = await mgr('GET', '/manager/disc-requests');
+    assert.equal(data.pending.length, 1);
+    assert.equal(data.pending[0].id, b);
+    assert.equal(data.pending[0].suggested_mentor.id, mentorD2);
+  } finally {
+    db.prepare('DELETE FROM users WHERE id = ?').run(mentorD2);
+  }
+});
+
 test('одобрение създава служител с телефон, ментор и магазина на ментора; входът с телефона работи', async () => {
   const id = addRequest('Пешо Петров', '0899111001', 'D', mentorD);
   const r = await mgr('POST', `/manager/disc-requests/${id}/approve`, { mentorId: mentorD });

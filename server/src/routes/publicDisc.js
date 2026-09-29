@@ -29,7 +29,7 @@ router.post('/check', (req, res) => {
 });
 
 router.post('/', (req, res) => {
-  const name = String(req.body?.name || '').trim().slice(0, 100);
+  const name = (typeof req.body?.name === 'string' ? req.body.name : '').trim().slice(0, 100);
   if (!name) return res.status(400).json({ error: 'Въведи име и фамилия.' });
   const phone = normalizePhone(req.body?.phone);
   if (!phone) return res.status(400).json({ error: 'Въведи валиден телефон (напр. 0888 123 456).' });

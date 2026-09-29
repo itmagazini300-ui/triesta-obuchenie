@@ -94,7 +94,7 @@ export default function Requests() {
       {data.pending.length === 0
         ? <div className="card" style={{ padding: 24 }} ><span className="muted">Няма чакащи заявки.</span></div>
         : <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit,minmax(320px,1fr))' }}>
-            {data.pending.map((r) => <RequestCard key={r.id} r={r} mentors={data.mentors} onDone={done} />)}
+            {data.pending.map((r) => <RequestCard key={r.id + ':' + (r.suggested_mentor?.id ?? '')} r={r} mentors={data.mentors} onDone={done} />)}
           </div>}
 
       {data.history.length > 0 && (
