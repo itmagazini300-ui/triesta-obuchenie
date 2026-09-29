@@ -9,6 +9,7 @@ import learnRoutes from './routes/learn.js';
 import managerRoutes from './routes/manager.js';
 import adminRoutes from './routes/admin.js';
 import applyRoutes from './routes/apply.js';
+import storesRoutes from './routes/stores.js';
 
 export function createApp() {
   const app = express();
@@ -21,6 +22,7 @@ export function createApp() {
   app.use('/api/auth', authRoutes);
   app.use('/api/learn', learnRoutes);
   app.use('/api/manager', managerRoutes);
+  app.use('/api/admin/stores', storesRoutes);
   app.use('/api/admin', adminRoutes);
   app.use('/api/apply', applyRoutes); // публичен – без вход
 
