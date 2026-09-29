@@ -2,6 +2,7 @@ import { DatabaseSync } from 'node:sqlite';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { mkdirSync } from 'node:fs';
+import { ensureStores } from './stores.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const dataDir = join(__dirname, '..', 'data');
@@ -15,12 +16,12 @@ export const db = new DatabaseSync(dbFile);
 db.exec('PRAGMA journal_mode = WAL');
 db.exec('PRAGMA foreign_keys = ON');
 
-export function initSchema() {
-  db.exec(`
-    CREATE TABLE IF NOT EXISTS users (
+// Схемата на users – ползва се и при първо създаване, и при пресъздаване на стара таблица.
+const USERS_COLUMNS = `
       id            INTEGER PRIMARY KEY AUTOINCREMENT,
       name          TEXT NOT NULL,
-      email         TEXT NOT NULL UNIQUE,
+      email         TEXT UNIQUE,                         -- само за управители е задължителен
+      phone         TEXT,                                -- нормализиран (0XXXXXXXXX); вход за служителите
       password_hash TEXT NOT NULL,
       role          TEXT NOT NULL DEFAULT 'employee',   -- 'employee' | 'manager'
       store         TEXT,
@@ -28,12 +29,18 @@ export function initSchema() {
       mentor        TEXT,
       start_date    TEXT,
       is_mentor     INTEGER NOT NULL DEFAULT 0,
+      mentor_style  TEXT,                                -- DISC стил на ментора: D | I | S | C
+      mentorship_done_at TEXT,                           -- кога е завършил при ментора си (NULL = в обучение)
       feedback_rating REAL,                              -- оценка от обучените (1–5)
       retention_rate  INTEGER,                           -- задържане на обучените след 3 месеца (%)
       disc_result   TEXT,                                -- резултат от DISC теста: D | I | S | C
       disc_taken_at TEXT,
       seen_welcome  INTEGER NOT NULL DEFAULT 0,          -- видял ли е приветствения екран
-      created_at    TEXT DEFAULT (datetime('now'))
+      created_at    TEXT DEFAULT (datetime('now'))`;
+
+export function initSchema() {
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS users (${USERS_COLUMNS}
     );
 
     CREATE TABLE IF NOT EXISTS categories (
@@ -97,6 +104,26 @@ export function initSchema() {
       updated_at   TEXT DEFAULT (datetime('now')),
       UNIQUE (user_id, module_id)
     );
+
+    CREATE TABLE IF NOT EXISTS stores (
+      id          INTEGER PRIMARY KEY AUTOINCREMENT,
+      name        TEXT NOT NULL UNIQUE,
+      location_id INTEGER,                         -- LOCATIONID в Мистрал
+      order_index INTEGER NOT NULL DEFAULT 0
+    );
+
+    CREATE TABLE IF NOT EXISTS disc_requests (
+      id                  INTEGER PRIMARY KEY AUTOINCREMENT,
+      name                TEXT NOT NULL,
+      phone               TEXT NOT NULL,          -- нормализиран
+      disc_result         TEXT NOT NULL,          -- D | I | S | C
+      disc_scores         TEXT,                   -- JSON {D,I,S,C}
+      suggested_mentor_id INTEGER,
+      status              TEXT NOT NULL DEFAULT 'pending', -- pending | approved | rejected
+      user_id             INTEGER,                -- създаденият акаунт при одобрение
+      decided_at          TEXT,
+      created_at          TEXT DEFAULT (datetime('now'))
+    );
   `);
   migrate();
 }
@@ -113,5 +140,35 @@ function migrate() {
   addCol('users', 'disc_result', 'disc_result TEXT');
   addCol('users', 'disc_taken_at', 'disc_taken_at TEXT');
   addCol('users', 'seen_welcome', 'seen_welcome INTEGER NOT NULL DEFAULT 0');
+  addCol('users', 'phone', 'phone TEXT');
+  addCol('users', 'mentor_style', 'mentor_style TEXT');
+  addCol('users', 'mentorship_done_at', 'mentorship_done_at TEXT');
   addCol('modules', 'duration', 'duration INTEGER');
+
+  // Стари бази имат email NOT NULL – служителите вече влизат с телефон.
+  const email = db.prepare('PRAGMA table_info(users)').all().find((c) => c.name === 'email');
+  if (email?.notnull) rebuildUsersTable();
+
+  db.exec('CREATE UNIQUE INDEX IF NOT EXISTS users_phone ON users(phone) WHERE phone IS NOT NULL');
+  ensureStores(db);
+}
+
+// SQLite не може да махне NOT NULL с ALTER – пресъздаваме таблицата, като пазим id-тата.
+function rebuildUsersTable() {
+  const cols = db.prepare('PRAGMA table_info(users)').all().map((c) => c.name).join(', ');
+  db.exec('PRAGMA foreign_keys = OFF');
+  try {
+    db.exec('BEGIN');
+    db.exec(`CREATE TABLE users_new (${USERS_COLUMNS}
+)`);
+    db.exec(`INSERT INTO users_new (${cols}) SELECT ${cols} FROM users`);
+    db.exec('DROP TABLE users');
+    db.exec('ALTER TABLE users_new RENAME TO users');
+    db.exec('COMMIT');
+  } catch (e) {
+    db.exec('ROLLBACK');
+    throw e;
+  } finally {
+    db.exec('PRAGMA foreign_keys = ON');
+  }
 }
