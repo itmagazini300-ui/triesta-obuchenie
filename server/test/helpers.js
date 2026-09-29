@@ -1,6 +1,11 @@
+import './env.js';
 import bcrypt from 'bcryptjs';
 import { db, initSchema } from '../src/db.js';
 import { createApp } from '../src/app.js';
+
+if (process.env.DB_PATH !== ':memory:') {
+  throw new Error('Тестовете трябва да работят върху базата в паметта (DB_PATH=:memory:), не върху истинската.');
+}
 
 initSchema();
 
