@@ -4,6 +4,7 @@ import { randomInt } from 'node:crypto';
 import { requireManager } from '../auth.js';
 import { db } from '../db.js';
 import { listMentors, activeMenteeCount, suggestMentor } from '../mentorMatch.js';
+import { companyOfStore } from '../companyOf.js';
 
 // Заявки от публичния DISC тест – чакат одобрение от управителя.
 const router = Router();
@@ -21,11 +22,12 @@ function view(r) {
   let m;
   if (r.status === 'pending') {
     const s = suggestMentor(r.disc_result);
-    m = s ? { id: s.id, name: s.name, store: s.store, mentor_style: s.mentor_style } : null;
+    m = s ? { id: s.id, name: s.name, store: s.store, company: s.company, mentor_style: s.mentor_style } : null;
   } else {
     m = r.suggested_mentor_id
       ? db.prepare('SELECT id, name, store, mentor_style FROM users WHERE id = ? AND is_mentor = 1').get(r.suggested_mentor_id)
       : null;
+    if (m) m = { ...m, company: companyOfStore(m.store) };
   }
   return {
     id: r.id, name: r.name, phone: r.phone, disc_result: r.disc_result, created_at: r.created_at,

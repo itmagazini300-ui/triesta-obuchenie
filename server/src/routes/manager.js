@@ -3,20 +3,28 @@ import { requireManager } from '../auth.js';
 import { db } from '../db.js';
 import { getCatalog } from '../progressCalc.js';
 import { levelFor } from '../levels.js';
+import { companyOfStore } from '../companyOf.js';
 
 const router = Router();
 router.use(requireManager);
 
 // Обобщено табло: всички служители + прогрес
-router.get('/overview', (_req, res) => {
-  const employees = db
-    .prepare("SELECT id, name, email, store, position, mentor, start_date FROM users WHERE role = 'employee' ORDER BY name")
-    .all();
+router.get('/overview', (req, res) => {
+  const { company, store } = req.query;
+  let employees = db.prepare(`
+    SELECT u.id, u.name, u.email, u.store, u.position, u.mentor, u.start_date, s.company_id, c.name AS company
+    FROM users u
+    LEFT JOIN stores s ON s.name = u.store
+    LEFT JOIN companies c ON c.id = s.company_id
+    WHERE u.role = 'employee' ORDER BY u.name`).all();
+  if (company === 'none') employees = employees.filter((e) => e.company_id == null);
+  else if (company) employees = employees.filter((e) => e.company_id === Number(company));
+  if (store) employees = employees.filter((e) => e.store === store);
 
   const rows = employees.map((e) => {
     const c = getCatalog(e.id);
     return {
-      id: e.id, name: e.name, store: e.store, position: e.position, mentor: e.mentor,
+      id: e.id, name: e.name, store: e.store, company: e.company, position: e.position, mentor: e.mentor,
       start_date: e.start_date,
       overall: c.overall,
       level: c.level,
@@ -56,7 +64,7 @@ router.get('/mentors', (_req, res) => {
 
   const rows = mentors.map((mtr) => {
     const mentees = db.prepare("SELECT id, name, position, store, start_date, mentorship_done_at FROM users WHERE mentor = ? AND role = 'employee' AND id != ?").all(mtr.name, mtr.id);
-    const activeList = mentees.filter((e) => !e.mentorship_done_at).map((e) => ({ id: e.id, name: e.name, store: e.store, start_date: e.start_date }));
+    const activeList = mentees.filter((e) => !e.mentorship_done_at).map((e) => ({ id: e.id, name: e.name, store: e.store, company: companyOfStore(e.store), start_date: e.start_date }));
     const doneList = mentees.filter((e) => e.mentorship_done_at).map((e) => ({ id: e.id, name: e.name, mentorship_done_at: e.mentorship_done_at }));
     const menteeData = mentees.map((e) => {
       const c = getCatalog(e.id);
@@ -71,7 +79,7 @@ router.get('/mentors', (_req, res) => {
     // Композитен резултат за рейтинга и „Ментор на годината"
     const score = Math.round(successRate * 0.5 + (feedback / 5) * 100 * 0.3 + retention * 0.2);
     return {
-      id: mtr.id, name: mtr.name, store: mtr.store, position: mtr.position, mentor_style: mtr.mentor_style,
+      id: mtr.id, name: mtr.name, store: mtr.store, company: companyOfStore(mtr.store), position: mtr.position, mentor_style: mtr.mentor_style,
       active: activeList.length, activeList, doneList,
       mentees: count, passed, successRate, avgProgress,
       feedback, retention, bonus: bonusFor(successRate), score,
@@ -142,7 +150,7 @@ router.get('/employees/:id', (req, res) => {
   if (!e) return res.status(404).json({ error: 'Служителят не е намерен.' });
 
   const catalog = getCatalog(e.id);
-  res.json({ employee: e, ...catalog });
+  res.json({ employee: { ...e, company: companyOfStore(e.store) }, ...catalog });
 });
 
 export default router;
