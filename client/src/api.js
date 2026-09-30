@@ -24,7 +24,10 @@ export const api = {
   disc: () => request('/learn/disc'),
   submitDisc: (answers) => request('/learn/disc', { method: 'POST', body: JSON.stringify({ answers }) }),
 
-  managerOverview: () => request('/manager/overview'),
+  managerOverview: (params = {}) => {
+    const q = new URLSearchParams(Object.entries(params).filter(([, v]) => v)).toString();
+    return request('/manager/overview' + (q ? '?' + q : ''));
+  },
   managerEmployee: (id) => request('/manager/employees/' + id),
   managerMentors: () => request('/manager/mentors'),
   managerApplications: () => request('/manager/applications'),
@@ -80,4 +83,10 @@ export const api = {
   adminCreateStore: (data) => request('/admin/stores', { method: 'POST', body: JSON.stringify(data) }),
   adminUpdateStore: (id, data) => request('/admin/stores/' + id, { method: 'PUT', body: JSON.stringify(data) }),
   adminDeleteStore: (id) => request('/admin/stores/' + id, { method: 'DELETE' }),
+
+  // ── админ: фирми ──
+  adminCompanies: () => request('/admin/companies'),
+  adminCreateCompany: (data) => request('/admin/companies', { method: 'POST', body: JSON.stringify(data) }),
+  adminUpdateCompany: (id, data) => request('/admin/companies/' + id, { method: 'PUT', body: JSON.stringify(data) }),
+  adminDeleteCompany: (id) => request('/admin/companies/' + id, { method: 'DELETE' }),
 };

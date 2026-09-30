@@ -1,16 +1,25 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { api } from '../api.js';
 import { Icon } from '../icons.jsx';
 import { Bar, Loading, initials } from '../components.jsx';
 
 export default function ManagerHome() {
   const nav = useNavigate();
+  const [params, setParams] = useSearchParams();
+  const company = params.get('company') || '';
+  const store = params.get('store') || '';
   const [data, setData] = useState(null);
-  useEffect(() => { api.managerOverview().then(setData); }, []);
-  if (!data) return <Loading />;
+  const [groups, setGroups] = useState(null);
+  useEffect(() => { api.adminCompanies().then(setGroups); }, []);
+  useEffect(() => { api.managerOverview({ company, store }).then(setData); }, [company, store]);
+  if (!data || !groups) return <Loading />;
 
   const { stats, employees } = data;
+  const storesOf = company === 'none' ? groups.unassigned.stores
+    : company ? (groups.companies.find((c) => String(c.id) === company)?.stores || [])
+    : [...groups.companies.flatMap((c) => c.stores), ...groups.unassigned.stores];
+  const setFilter = (next) => setParams(Object.fromEntries(Object.entries(next).filter(([, v]) => v)));
 
   return (
     <div className="wrap">
@@ -39,11 +48,26 @@ export default function ManagerHome() {
         </div>
       </div>
 
+      <div className="card" style={{ padding: 16, display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'flex-end', marginBottom: 14 }}>
+        <div className="field" style={{ margin: 0, flex: '1 1 240px' }}><label>Фирма</label>
+          <select value={company} onChange={(e) => setFilter({ company: e.target.value })}>
+            <option value="">Всички фирми</option>
+            {groups.companies.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+            <option value="none">— без фирма —</option>
+          </select></div>
+        <div className="field" style={{ margin: 0, flex: '1 1 200px' }}><label>Обект</label>
+          <select value={store} onChange={(e) => setFilter({ company, store: e.target.value })}>
+            <option value="">Всички обекти</option>
+            {storesOf.map((s) => <option key={s.id} value={s.name}>{s.name}</option>)}
+          </select></div>
+        {(company || store) && <button className="btn ghost sm" onClick={() => setFilter({})}>Изчисти</button>}
+      </div>
+
       <div className="card" style={{ overflowX: 'auto' }}>
         <table className="table">
           <thead>
             <tr>
-              <th>Служител</th><th>Магазин</th><th>Ментор</th>
+              <th>Служител</th><th>Магазин</th><th>Фирма</th><th>Ментор</th>
               <th style={{ width: 220 }}>Прогрес</th><th>Ниво</th><th>Модули</th>
             </tr>
           </thead>
@@ -57,6 +81,7 @@ export default function ManagerHome() {
                   </div>
                 </td>
                 <td className="muted">{e.store}</td>
+                <td className="muted">{e.company || '—'}</td>
                 <td className="muted">{e.mentor || '—'}</td>
                 <td>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -68,6 +93,7 @@ export default function ManagerHome() {
                 <td className="tabnum muted">{e.completedModules}/{e.totalModules}</td>
               </tr>
             ))}
+            {employees.length === 0 && <tr style={{ cursor: 'default' }}><td colSpan={7} className="muted">Няма служители за избрания филтър.</td></tr>}
           </tbody>
         </table>
       </div>
