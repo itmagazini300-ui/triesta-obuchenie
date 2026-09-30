@@ -44,3 +44,42 @@ test('магазин с хора не се трие; празен – се тр�
 test('без вход → 401', async () => {
   assert.equal((await makeClient(srv.base)('GET', '/admin/stores')).status, 401);
 });
+
+test('списъкът показва фирма, вид и адрес + списъка с видове', async () => {
+  const { data } = await mgr('GET', '/admin/stores');
+  const d = data.stores.find((s) => s.name === 'ДУБРОВНИК');
+  assert.equal(d.company_name, '„Прогрес БГ 13“ ООД');
+  assert.equal(d.kind, 'магазин');
+  assert.equal(d.address, 'ул. „Дубровник“ №4');
+  assert.ok(data.kinds.includes('пекарна'));
+});
+
+test('нов обект с фирма, вид и адрес', async () => {
+  const cid = db.prepare("SELECT id FROM companies WHERE name = '„Клас Комерс БГ“ ООД'").get().id;
+  const r = await mgr('POST', '/admin/stores', { name: 'ПЕКАРНА НОВА', company_id: cid, kind: 'пекарна', address: 'ул. „Нова“ 1' });
+  assert.equal(r.status, 200);
+  const s = db.prepare("SELECT * FROM stores WHERE name = 'ПЕКАРНА НОВА'").get();
+  assert.deepEqual([s.company_id, s.kind, s.address], [cid, 'пекарна', 'ул. „Нова“ 1']);
+});
+
+test('преименуване без другите полета запазва фирмата, вида и адреса', async () => {
+  const s = db.prepare("SELECT * FROM stores WHERE name = 'ПЕКАРНА НОВА'").get();
+  assert.equal((await mgr('PUT', `/admin/stores/${s.id}`, { name: 'ПЕКАРНА НОВА 2' })).status, 200);
+  const after = db.prepare('SELECT * FROM stores WHERE id = ?').get(s.id);
+  assert.deepEqual([after.name, after.company_id, after.kind, after.address], ['ПЕКАРНА НОВА 2', s.company_id, 'пекарна', 'ул. „Нова“ 1']);
+});
+
+test('преместване на обект към „без фирма“', async () => {
+  const s = db.prepare("SELECT id FROM stores WHERE name = 'ПЕКАРНА НОВА 2'").get();
+  assert.equal((await mgr('PUT', `/admin/stores/${s.id}`, { company_id: '' })).status, 200);
+  assert.equal(db.prepare('SELECT company_id FROM stores WHERE id = ?').get(s.id).company_id, null);
+});
+
+test('невалидна фирма или вид → 400', async () => {
+  const s = db.prepare("SELECT id FROM stores WHERE name = 'ПЕКАРНА НОВА 2'").get();
+  for (const body of [{ company_id: 99999 }, { company_id: 'абв' }, { kind: 'космодрум' }]) {
+    const r = await mgr('PUT', `/admin/stores/${s.id}`, body);
+    assert.equal(r.status, 400, JSON.stringify(body));
+  }
+  assert.equal((await mgr('POST', '/admin/stores', { name: 'Х', kind: 'космодрум' })).status, 400);
+});
