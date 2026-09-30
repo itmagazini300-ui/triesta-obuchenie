@@ -225,33 +225,33 @@ const CATEGORIES = [
 // ─────────────────────────────────────────────────────────────
 //  ПОТРЕБИТЕЛИ
 // ─────────────────────────────────────────────────────────────
-const PASSWORD = 'triesta123'; // обща демо парола
+const PASSWORD = 'trista123'; // обща демо парола
 
 const USERS = [
-  { name: 'Мария Георгиева', email: 'mariya@triesta.bg', phone: '0888100001', role: 'manager', store: 'ЦЕНТРАЛЕН ОФИС', position: 'Регионален управител', mentor: null, start_date: '2019-03-01', is_mentor: 1, mentor_style: 'D', feedback_rating: 4.8, retention_rate: 92 },
+  { name: 'Мария Георгиева', email: 'mariya@trista.bg', phone: '0888100001', role: 'manager', store: 'ЦЕНТРАЛЕН ОФИС', position: 'Регионален управител', mentor: null, start_date: '2019-03-01', is_mentor: 1, mentor_style: 'D', feedback_rating: 4.8, retention_rate: 92 },
   // Ментори (старши служители, които обучават други) – по двама за всеки DISC стил
-  { name: 'Анна Димитрова', email: 'anna@triesta.bg', phone: '0888100002', role: 'employee', store: 'ДУБРОВНИК', position: 'Старши продавач', mentor: 'Мария Георгиева', start_date: '2022-06-10', is_mentor: 1, mentor_style: 'I', feedback_rating: 4.7, retention_rate: 90 },
-  { name: 'Петър Петров', email: 'petar@triesta.bg', phone: '0888100003', role: 'employee', store: 'САКАР', position: 'Старши продавач', mentor: 'Анна Димитрова', start_date: '2023-09-01', is_mentor: 1, mentor_style: 'S', feedback_rating: 4.9, retention_rate: 88 },
+  { name: 'Анна Димитрова', email: 'anna@trista.bg', phone: '0888100002', role: 'employee', store: 'ДУБРОВНИК', position: 'Старши продавач', mentor: 'Мария Георгиева', start_date: '2022-06-10', is_mentor: 1, mentor_style: 'I', feedback_rating: 4.7, retention_rate: 90 },
+  { name: 'Петър Петров', email: 'petar@trista.bg', phone: '0888100003', role: 'employee', store: 'САКАР', position: 'Старши продавач', mentor: 'Анна Димитрова', start_date: '2023-09-01', is_mentor: 1, mentor_style: 'S', feedback_rating: 4.9, retention_rate: 88 },
   { name: 'Даниел Вълчев', email: null, phone: '0888100004', role: 'employee', store: 'ШИПКА', position: 'Старши продавач', mentor: null, start_date: '2021-04-12', is_mentor: 1, mentor_style: 'D', feedback_rating: 4.5, retention_rate: 85 },
   { name: 'Ралица Христова', email: null, phone: '0888100005', role: 'employee', store: 'ИСКЪР', position: 'Старши продавач', mentor: null, start_date: '2022-01-17', is_mentor: 1, mentor_style: 'I', feedback_rating: 4.6, retention_rate: 87 },
   { name: 'Теодора Маринова', email: null, phone: '0888100006', role: 'employee', store: 'ТРАКИЯ', position: 'Старши продавач', mentor: null, start_date: '2020-09-03', is_mentor: 1, mentor_style: 'S', feedback_rating: 4.8, retention_rate: 93 },
   { name: 'Калин Янев', email: null, phone: '0888100007', role: 'employee', store: 'МЛАДОСТ', position: 'Старши продавач', mentor: null, start_date: '2021-11-22', is_mentor: 1, mentor_style: 'C', feedback_rating: 4.4, retention_rate: 84 },
   { name: 'Йоана Стоева', email: null, phone: '0888100008', role: 'employee', store: 'МИР', position: 'Старши продавач', mentor: null, start_date: '2022-03-08', is_mentor: 1, mentor_style: 'C', feedback_rating: 4.7, retention_rate: 89 },
   // Служители
-  { name: 'Иван Петров', email: 'ivan@triesta.bg', phone: '0888200001', role: 'employee', store: 'ИСКЪР', position: 'Продавач-консултант', mentor: 'Мария Георгиева', start_date: '2024-04-15' },
-  { name: 'Георги Георгиев', email: 'georgi@triesta.bg', phone: '0888200002', role: 'employee', store: 'ТРАКИЯ', position: 'Продавач-консултант', mentor: 'Петър Петров', start_date: '2025-06-20' },
-  { name: 'Стефан Колев', email: 'stefan@triesta.bg', phone: '0888200003', role: 'employee', store: 'ТРАКИЯ', position: 'Продавач-консултант', mentor: 'Петър Петров', start_date: '2024-02-05' },
-  { name: 'Николай Стоянов', email: 'nikolay@triesta.bg', phone: '0888200004', role: 'employee', store: 'САКАР', position: 'Продавач-консултант', mentor: 'Петър Петров', start_date: '2025-03-12' },
-  { name: 'Елена Тодорова', email: 'elena@triesta.bg', phone: '0888200005', role: 'employee', store: 'ДУБРОВНИК', position: 'Продавач-консултант', mentor: 'Анна Димитрова', start_date: '2023-11-20' },
-  { name: 'Виктория Илиева', email: 'viktoria@triesta.bg', phone: '0888200006', role: 'employee', store: 'ДУБРОВНИК', position: 'Продавач-консултант', mentor: 'Анна Димитрова', start_date: '2025-05-28' },
-  { name: 'Мартин Костов', email: 'martin@triesta.bg', phone: '0888200007', role: 'employee', store: 'ИСКЪР', position: 'Продавач-консултант', mentor: 'Мария Георгиева', start_date: '2024-08-14' },
-  { name: 'Десислава Ангелова', email: 'desislava@triesta.bg', phone: '0888200008', role: 'employee', store: 'ИСКЪР', position: 'Старши продавач', mentor: 'Мария Георгиева', start_date: '2021-10-01' },
+  { name: 'Иван Петров', email: 'ivan@trista.bg', phone: '0888200001', role: 'employee', store: 'ИСКЪР', position: 'Продавач-консултант', mentor: 'Мария Георгиева', start_date: '2024-04-15' },
+  { name: 'Георги Георгиев', email: 'georgi@trista.bg', phone: '0888200002', role: 'employee', store: 'ТРАКИЯ', position: 'Продавач-консултант', mentor: 'Петър Петров', start_date: '2025-06-20' },
+  { name: 'Стефан Колев', email: 'stefan@trista.bg', phone: '0888200003', role: 'employee', store: 'ТРАКИЯ', position: 'Продавач-консултант', mentor: 'Петър Петров', start_date: '2024-02-05' },
+  { name: 'Николай Стоянов', email: 'nikolay@trista.bg', phone: '0888200004', role: 'employee', store: 'САКАР', position: 'Продавач-консултант', mentor: 'Петър Петров', start_date: '2025-03-12' },
+  { name: 'Елена Тодорова', email: 'elena@trista.bg', phone: '0888200005', role: 'employee', store: 'ДУБРОВНИК', position: 'Продавач-консултант', mentor: 'Анна Димитрова', start_date: '2023-11-20' },
+  { name: 'Виктория Илиева', email: 'viktoria@trista.bg', phone: '0888200006', role: 'employee', store: 'ДУБРОВНИК', position: 'Продавач-консултант', mentor: 'Анна Димитрова', start_date: '2025-05-28' },
+  { name: 'Мартин Костов', email: 'martin@trista.bg', phone: '0888200007', role: 'employee', store: 'ИСКЪР', position: 'Продавач-консултант', mentor: 'Мария Георгиева', start_date: '2024-08-14' },
+  { name: 'Десислава Ангелова', email: 'desislava@trista.bg', phone: '0888200008', role: 'employee', store: 'ИСКЪР', position: 'Старши продавач', mentor: 'Мария Георгиева', start_date: '2021-10-01' },
 ];
 
 // Прогрес по имейл -> категория slug -> масив със статуси на модулите (по ред).
 // 'c' = завършен (със score), 'p' = в процес, '-' = незапочнат
 const PROGRESS = {
-  'ivan@triesta.bg': {
+  'ivan@trista.bg': {
     vavedenie: ['c:100', 'c:90'],
     stoka: ['c:90', 'c:100', 'c:80'],
     kasa: ['c:100', 'c:80', 'c:90', 'p'],
@@ -259,7 +259,7 @@ const PROGRESS = {
     higiena: ['c:100', 'c:90'],
     storno: ['-', '-'],
   },
-  'anna@triesta.bg': {
+  'anna@trista.bg': {
     vavedenie: ['c:100', 'c:100'],
     stoka: ['c:90', 'c:90', 'c:100'],
     kasa: ['c:100', 'c:90', 'c:90', 'c:80'],
@@ -267,7 +267,7 @@ const PROGRESS = {
     higiena: ['c:100', 'c:90'],
     storno: ['c:80', 'p'],
   },
-  'petar@triesta.bg': {
+  'petar@trista.bg': {
     vavedenie: ['c:100', 'c:80'],
     stoka: ['c:90', 'c:80', 'c:90'],
     kasa: ['c:100', 'c:90', 'c:80', 'c:90'],
@@ -275,23 +275,23 @@ const PROGRESS = {
     higiena: ['c:100', 'p'],
     storno: ['-', '-'],
   },
-  'georgi@triesta.bg': {
+  'georgi@trista.bg': {
     vavedenie: ['c:90', 'p'],
     stoka: ['p', '-', '-'],
   },
-  'stefan@triesta.bg': {
+  'stefan@trista.bg': {
     vavedenie: ['c:100', 'c:90'],
     stoka: ['c:90', 'c:100', 'c:80'],
     kasa: ['c:100', 'c:80', 'c:90', 'c:90'],
     klienti: ['c:80', 'c:90', 'c:80'],
     higiena: ['c:100', 'c:90'],
   },
-  'nikolay@triesta.bg': {
+  'nikolay@trista.bg': {
     vavedenie: ['c:100', 'c:80'],
     stoka: ['c:90', 'c:80', 'c:90'],
     kasa: ['c:80', 'c:90', 'c:80', 'c:80'],
   },
-  'elena@triesta.bg': {
+  'elena@trista.bg': {
     vavedenie: ['c:100', 'c:100'],
     stoka: ['c:90', 'c:100', 'c:90'],
     kasa: ['c:100', 'c:90', 'c:90', 'c:80'],
@@ -299,17 +299,17 @@ const PROGRESS = {
     higiena: ['c:100', 'c:90'],
     storno: ['c:80', '-'],
   },
-  'viktoria@triesta.bg': {
+  'viktoria@trista.bg': {
     vavedenie: ['c:80', 'p'],
     stoka: ['p', '-', '-'],
   },
-  'martin@triesta.bg': {
+  'martin@trista.bg': {
     vavedenie: ['c:100', 'c:90'],
     stoka: ['c:80', 'c:90', 'c:80'],
     kasa: ['c:90', 'p', '-', '-'],
     klienti: ['c:80', '-', '-'],
   },
-  'desislava@triesta.bg': {
+  'desislava@trista.bg': {
     vavedenie: ['c:100', 'c:100'],
     stoka: ['c:100', 'c:90', 'c:100'],
     kasa: ['c:100', 'c:100', 'c:90', 'c:90'],

@@ -14,5 +14,5 @@ test('seed: 8 ментора по 2 на стил, реални магазини
   assert.equal(reqs.length, 3);
   assert.ok(reqs.every((r) => r.suggested_mentor_id));
   // демо входът с имейл остава
-  assert.ok(db.prepare("SELECT 1 FROM users WHERE email = 'ivan@triesta.bg' AND phone IS NOT NULL").get());
+  assert.ok(db.prepare("SELECT 1 FROM users WHERE email = 'ivan@trista.bg' AND phone IS NOT NULL").get());
 });

@@ -153,7 +153,7 @@ export default function AdminUsers() {
             <div className="field"><label>Телефон {editing.role === 'employee' ? '(за вход)' : '(по избор)'}</label>
               <input type="tel" value={editing.phone || ''} onChange={(e) => setEditing({ ...editing, phone: e.target.value })} placeholder="0888 123 456" /></div>
             <div className="field"><label>Имейл {editing.role === 'manager' ? '(за вход)' : '(по избор)'}</label>
-              <input value={editing.email || ''} onChange={(e) => setEditing({ ...editing, email: e.target.value })} placeholder="ime@triesta.bg" /></div>
+              <input value={editing.email || ''} onChange={(e) => setEditing({ ...editing, email: e.target.value })} placeholder="ime@trista.bg" /></div>
             <div className="field"><label>Роля</label>
               <select value={editing.role} onChange={(e) => setEditing({ ...editing, role: e.target.value })}>
                 <option value="employee">Служител</option>

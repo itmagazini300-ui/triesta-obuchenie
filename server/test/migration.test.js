@@ -13,7 +13,7 @@ test('стара база: email става незадължителен, ред
     CREATE TABLE categories (id INTEGER PRIMARY KEY AUTOINCREMENT, slug TEXT NOT NULL UNIQUE, title TEXT NOT NULL, icon TEXT NOT NULL, description TEXT, order_index INTEGER NOT NULL DEFAULT 0);
     CREATE TABLE modules (id INTEGER PRIMARY KEY AUTOINCREMENT, category_id INTEGER NOT NULL REFERENCES categories(id) ON DELETE CASCADE, title TEXT NOT NULL, summary TEXT, content TEXT, video_url TEXT, order_index INTEGER NOT NULL DEFAULT 0);
     CREATE TABLE progress (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE, module_id INTEGER NOT NULL REFERENCES modules(id) ON DELETE CASCADE, status TEXT NOT NULL DEFAULT 'not_started', score INTEGER, completed_at TEXT, updated_at TEXT DEFAULT (datetime('now')), UNIQUE (user_id, module_id));
-    INSERT INTO users (id, name, email, password_hash, role, store) VALUES (7, 'Стар Служител', 'star@triesta.bg', 'h', 'employee', 'Магазин Люлин');
+    INSERT INTO users (id, name, email, password_hash, role, store) VALUES (7, 'Стар Служител', 'star@trista.bg', 'h', 'employee', 'Магазин Люлин');
     INSERT INTO categories (id, slug, title, icon) VALUES (1, 'c', 'К', 'store');
     INSERT INTO modules (id, category_id, title) VALUES (1, 1, 'М');
     INSERT INTO progress (user_id, module_id, status, score) VALUES (7, 1, 'completed', 90);
@@ -29,7 +29,7 @@ test('стара база: email става незадължителен, ред
 
   const u = db.prepare('SELECT * FROM users WHERE id = 7').get();
   assert.equal(u.name, 'Стар Служител');
-  assert.equal(u.email, 'star@triesta.bg');
+  assert.equal(u.email, 'star@trista.bg');
   assert.equal(db.prepare('SELECT COUNT(*) n FROM progress WHERE user_id = 7').get().n, 1);
   assert.deepEqual(db.prepare('PRAGMA foreign_key_check').all(), []);
 

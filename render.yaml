@@ -2,7 +2,7 @@
 # В Render: New +  →  Blueprint  →  избери този репозитори.
 services:
   - type: web
-    name: triesta-obuchenie
+    name: trista-obuchenie
     runtime: node
     plan: free
     buildCommand: npm run build

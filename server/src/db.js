@@ -1,15 +1,22 @@
 import { DatabaseSync } from 'node:sqlite';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
-import { mkdirSync } from 'node:fs';
+import { mkdirSync, existsSync, renameSync } from 'node:fs';
 import { ensureStores } from './stores.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const dataDir = join(__dirname, '..', 'data');
 mkdirSync(dataDir, { recursive: true });
 
+// Базата беше с грешно име „triesta.db“ – еднократно я преименуваме, без да губим данни.
+const defaultFile = join(dataDir, 'trista.db');
+const oldFile = join(dataDir, 'triesta.db');
+if (!process.env.DB_PATH && !process.env.NODE_TEST_CONTEXT && !existsSync(defaultFile) && existsSync(oldFile)) {
+  for (const ext of ['', '-wal', '-shm']) if (existsSync(oldFile + ext)) renameSync(oldFile + ext, defaultFile + ext);
+}
+
 // При `node --test` (NODE_TEST_CONTEXT) всеки тестов файл получава празна база в паметта.
-const dbFile = process.env.DB_PATH || (process.env.NODE_TEST_CONTEXT ? ':memory:' : join(dataDir, 'triesta.db'));
+const dbFile = process.env.DB_PATH || (process.env.NODE_TEST_CONTEXT ? ':memory:' : defaultFile);
 export const db = new DatabaseSync(dbFile);
 
 // По-добра надеждност при едновременен достъп

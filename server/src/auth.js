@@ -2,8 +2,8 @@ import jwt from 'jsonwebtoken';
 import { db } from './db.js';
 
 // В реален проект пази това в environment променлива.
-export const JWT_SECRET = process.env.JWT_SECRET || 'triesta-obuchenie-dev-secret-2026';
-export const COOKIE_NAME = 'triesta_token';
+export const JWT_SECRET = process.env.JWT_SECRET || 'trista-obuchenie-dev-secret-2026';
+export const COOKIE_NAME = 'trista_token';
 
 export function signToken(user) {
   return jwt.sign({ id: user.id, role: user.role }, JWT_SECRET, { expiresIn: '7d' });
