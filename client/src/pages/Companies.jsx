@@ -58,9 +58,20 @@ export default function Companies() {
   const [editing, setEditing] = useState(null);
   const [err, setErr] = useState('');
 
-  const load = () => api.adminCompanies().then(setData);
+  const [loadErr, setLoadErr] = useState(null);
+
+  const load = () => api.adminCompanies().then((d) => { setLoadErr(null); setData(d); }).catch((ex) => setLoadErr(ex));
   useEffect(() => { load(); }, []);
-  if (!data) return <Loading />;
+  if (!data) {
+    if (loadErr) {
+      return (
+        <div className="wrap">
+          <div className="err">Фирмите не можаха да се заредят. Опитай отново.{loadErr.message ? ` (${loadErr.message})` : ''}</div>
+        </div>
+      );
+    }
+    return <Loading />;
+  }
 
   const toggle = (key) => setOpen((s) => { const n = new Set(s); n.has(key) ? n.delete(key) : n.add(key); return n; });
   const openStore = (companyKey) => (s) => nav(`/manager?company=${companyKey}&store=${encodeURIComponent(s.name)}`);

@@ -11,8 +11,25 @@ export default function ManagerHome() {
   const store = params.get('store') || '';
   const [data, setData] = useState(null);
   const [groups, setGroups] = useState(null);
-  useEffect(() => { api.adminCompanies().then(setGroups); }, []);
-  useEffect(() => { api.managerOverview({ company, store }).then(setData); }, [company, store]);
+  const [loadErr, setLoadErr] = useState(null);
+  useEffect(() => {
+    api.adminCompanies().then(setGroups).catch(() => setGroups({ companies: [], unassigned: { stores: [] } }));
+  }, []);
+  useEffect(() => {
+    let cancelled = false;
+    setLoadErr(null);
+    api.managerOverview({ company, store })
+      .then((d) => { if (!cancelled) setData(d); })
+      .catch((ex) => { if (!cancelled) setLoadErr(ex); });
+    return () => { cancelled = true; };
+  }, [company, store]);
+  if (loadErr) {
+    return (
+      <div className="wrap">
+        <div className="err">Таблото не можа да се зареди. Опитай отново.{loadErr.message ? ` (${loadErr.message})` : ''}</div>
+      </div>
+    );
+  }
   if (!data || !groups) return <Loading />;
 
   const { stats, employees } = data;
