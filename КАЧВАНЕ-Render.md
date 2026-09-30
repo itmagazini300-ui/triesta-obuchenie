@@ -10,7 +10,7 @@
 1. Свали и инсталирай **GitHub Desktop**: https://desktop.github.com
 2. Отвори го и влез/регистрирай се с GitHub акаунт (безплатно).
 3. Горе вляво: **File → Add local repository…**
-4. Избери папката: `C:\Users\Пламен\Desktop\triesta-obuchenie` → **Add repository**.
+4. Избери папката: `C:\Users\Пламен\Desktop\trista-obuchenie` → **Add repository**.
    (Кодът вече е подготвен като хранилище — GitHub Desktop ще го разпознае.)
 5. Натисни синия бутон **Publish repository**.
    - Махни отметката „Keep this code private", ако искаш Render да го вижда по-лесно
@@ -34,7 +34,7 @@
 ## Стъпка 3 — Пусни приложението (Blueprint)
 
 1. В Render таблото натисни **New +** (горе вдясно) → **Blueprint**.
-2. Избери хранилището **triesta-obuchenie** от списъка → **Connect**.
+2. Избери хранилището **trista-obuchenie** от списъка → **Connect**.
 3. Render автоматично прочита файла `render.yaml` и показва услуга **trista-obuchenie**
    (тип Web, план **Free**). Натисни **Apply** / **Create**.
 4. Изчакай да построи (2–4 минути). Ще видиш лога „Build successful" и после „Live".
