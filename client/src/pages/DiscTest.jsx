@@ -57,7 +57,7 @@ function Result({ data, onRetake }) {
           </div>
         </div>
       </div>
-      <button className="btn ghost" onClick={onRetake}>Направи теста отново</button>
+      <button className="btn ghost" onClick={onRetake}>Попълни въпросника отново</button>
     </>
   );
 }
@@ -98,8 +98,8 @@ export default function DiscTest() {
     <div className="wrap" style={{ maxWidth: 820 }}>
       <div className="page-head">
         <div className="eyebrow">Опознай себе си</div>
-        <h1>DISC тест</h1>
-        <p>DISC показва предпочитанията ни в поведение и комуникация. Помага ни да работим по-добре заедно — няма грешни отговори.</p>
+        <h1>Личностен въпросник</h1>
+        <p>Въпросникът показва предпочитанията ни в поведение и комуникация. Помага ни да работим по-добре заедно — няма грешни отговори.</p>
       </div>
 
       {mode === 'result' && <Result data={result} onRetake={retake} />}
@@ -115,7 +115,7 @@ export default function DiscTest() {
               </div>
             ))}
           </div>
-          <button className="btn" onClick={() => setMode('test')}>Започни теста · {data.questions.length} въпроса</button>
+          <button className="btn" onClick={() => setMode('test')}>Започни въпросника · {data.questions.length} въпроса</button>
         </div>
       )}
 

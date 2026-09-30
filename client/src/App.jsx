@@ -126,7 +126,7 @@ function Layout() {
             <>
               <NavLink to="/" end className={({ isActive }) => isActive ? 'active' : ''}>Моите обучения</NavLink>
               <NavLink to="/videos" className={({ isActive }) => isActive ? 'active' : ''}>Видео Уроци</NavLink>
-              <NavLink to="/disc" className={({ isActive }) => isActive ? 'active' : ''}>DISC тест</NavLink>
+              <NavLink to="/disc" className={({ isActive }) => isActive ? 'active' : ''}>Личностен въпросник</NavLink>
               <NavLink to="/onboarding" className={({ isActive }) => isActive ? 'active' : ''}>Онбординг</NavLink>
               <NavLink to="/certificates" className={({ isActive }) => isActive ? 'active' : ''}>Сертификати</NavLink>
             </>
