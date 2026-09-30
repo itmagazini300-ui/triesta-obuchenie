@@ -2,6 +2,7 @@ import { DatabaseSync } from 'node:sqlite';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { mkdirSync, existsSync, renameSync } from 'node:fs';
+import { ensureCompanies } from './companies.js';
 import { ensureStores } from './stores.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -119,6 +120,15 @@ export function initSchema() {
       order_index INTEGER NOT NULL DEFAULT 0
     );
 
+    CREATE TABLE IF NOT EXISTS companies (
+      id          INTEGER PRIMARY KEY AUTOINCREMENT,
+      name        TEXT NOT NULL UNIQUE,
+      eik         TEXT,                            -- ЕИК/ДДС номер
+      mol         TEXT,
+      address     TEXT,                            -- адрес на управление
+      order_index INTEGER NOT NULL DEFAULT 0
+    );
+
     CREATE TABLE IF NOT EXISTS disc_requests (
       id                  INTEGER PRIMARY KEY AUTOINCREMENT,
       name                TEXT NOT NULL,
@@ -151,6 +161,9 @@ function migrate() {
   addCol('users', 'mentor_style', 'mentor_style TEXT');
   addCol('users', 'mentorship_done_at', 'mentorship_done_at TEXT');
   addCol('modules', 'duration', 'duration INTEGER');
+  addCol('stores', 'company_id', 'company_id INTEGER');
+  addCol('stores', 'kind', "kind TEXT NOT NULL DEFAULT 'магазин'");
+  addCol('stores', 'address', 'address TEXT');
 
   // Стари бази имат email NOT NULL – служителите вече влизат с телефон.
   const email = db.prepare('PRAGMA table_info(users)').all().find((c) => c.name === 'email');
@@ -158,6 +171,7 @@ function migrate() {
 
   db.exec('CREATE UNIQUE INDEX IF NOT EXISTS users_phone ON users(phone) WHERE phone IS NOT NULL');
   ensureStores(db);
+  ensureCompanies(db);
 }
 
 // SQLite не може да махне NOT NULL с ALTER – пресъздаваме таблицата, като пазим id-тата.
