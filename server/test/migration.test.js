@@ -45,4 +45,10 @@ test('стара база: email става незадължителен, ред
   assert.equal(db.prepare('SELECT COUNT(*) n FROM stores').get().n, n);
 
   assert.ok(db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='disc_requests'").get());
+
+  // Фирмите се зареждат и в стара база; служител с непознат магазин остава на мястото си.
+  assert.equal(db.prepare('SELECT COUNT(*) n FROM companies').get().n, 23);
+  assert.equal(db.prepare('SELECT store FROM users WHERE id = 7').get().store, 'Магазин Люлин');
+  const storeCols = db.prepare('PRAGMA table_info(stores)').all().map((c) => c.name);
+  for (const c of ['company_id', 'kind', 'address']) assert.ok(storeCols.includes(c), `липсва stores.${c}`);
 });

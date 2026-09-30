@@ -1,4 +1,5 @@
 import { db } from './db.js';
+import { companyOfStore } from './companyOf.js';
 
 // Активен обучаем = служител с този ментор, който още не е маркиран "Завършил".
 export function activeMenteeCount(mentorName) {
@@ -8,7 +9,7 @@ export function activeMenteeCount(mentorName) {
 
 export function listMentors() {
   return db.prepare('SELECT id, name, store, mentor_style FROM users WHERE is_mentor = 1 ORDER BY name').all()
-    .map((m) => ({ ...m, active: activeMenteeCount(m.name) }));
+    .map((m) => ({ ...m, company: companyOfStore(m.store), active: activeMenteeCount(m.name) }));
 }
 
 // Ментор със същия DISC стил и най-малко активни обучаеми; при равенство – по име.

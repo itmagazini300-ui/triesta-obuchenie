@@ -94,7 +94,7 @@ export default function Mentors() {
               <b style={{ fontSize: 16 }}>{m.name}</b>
               <DiscBadge style={m.mentor_style} />
             </div>
-            <div className="muted" style={{ fontSize: 13, margin: '4px 0 10px' }}>{m.store || 'без магазин'} · обучава <b>{m.active}</b></div>
+            <div className="muted" style={{ fontSize: 13, margin: '4px 0 10px' }}>{m.store || 'без магазин'}{m.company ? ` · ${m.company}` : ''} · обучава <b>{m.active}</b></div>
             {m.activeList.length === 0
               ? <div className="muted" style={{ fontSize: 13.5 }}>В момента не обучава никого.</div>
               : m.activeList.map((p) => (
@@ -129,7 +129,7 @@ export default function Mentors() {
                     <div className="av">{initials(m.name)}</div>
                     <div>
                       <b>{m.name}{m.id === mentorOfYearId && <span className="pill a" style={{ marginLeft: 8 }}><Icon name="trophy" size={12} /> №1</span>}</b>
-                      <div className="muted" style={{ fontSize: 12.5 }}>{m.position} · {m.store}</div>
+                      <div className="muted" style={{ fontSize: 12.5 }}>{[m.position, m.store, m.company].filter(Boolean).join(' · ')}</div>
                     </div>
                   </div>
                 </td>

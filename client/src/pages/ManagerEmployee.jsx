@@ -24,7 +24,7 @@ export default function ManagerEmployee() {
         </div>
         <div style={{ flex: 1, minWidth: 200 }}>
           <h1 style={{ fontSize: 26, textTransform: 'uppercase' }}>{e.name}</h1>
-          <div className="muted" style={{ marginTop: 4 }}>{e.position} · {e.store}</div>
+          <div className="muted" style={{ marginTop: 4 }}>{[e.position, e.store, e.company].filter(Boolean).join(' · ')}</div>
           <div className="muted" style={{ fontSize: 13, marginTop: 8, display: 'flex', gap: 18, flexWrap: 'wrap' }}>
             <span><Icon name="users" size={14} /> Ментор: <b style={{ color: 'var(--ink)' }}>{e.mentor || '—'}</b></span>
             <span><Icon name="clock" size={14} /> От: <b style={{ color: 'var(--ink)' }}>{e.start_date || '—'}</b></span>

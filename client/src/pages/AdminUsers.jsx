@@ -7,47 +7,47 @@ import { DISC, DISC_KEYS } from '../disc.jsx';
 
 const BLANK = { name: '', email: '', phone: '', password: '', role: 'employee', store: '', position: '', mentor: '', start_date: '', is_mentor: 0, mentor_style: '', feedback_rating: '', retention_rate: '' };
 
-function StoresSection({ stores, reload }) {
-  const [name, setName] = useState('');
-  const [loc, setLoc] = useState('');
+const STORE_BLANK = { name: '', location_id: '', company_id: '', kind: 'магазин', address: '' };
+
+function StoresSection({ stores, kinds, companies, reload }) {
+  const [editing, setEditing] = useState(null);
   const [err, setErr] = useState('');
 
-  async function run(fn) {
+  async function save(e) {
+    e.preventDefault();
     setErr('');
-    try { await fn(); reload(); } catch (e) { setErr(e.message); }
+    try {
+      if (editing.id) await api.adminUpdateStore(editing.id, editing);
+      else await api.adminCreateStore(editing);
+      setEditing(null);
+      reload();
+    } catch (ex) { setErr(ex.message); }
   }
-  const add = (e) => { e.preventDefault(); run(async () => { await api.adminCreateStore({ name, location_id: loc }); setName(''); setLoc(''); }); };
-  const rename = (s) => {
-    const n = prompt('Ново име на магазина:', s.name);
-    if (n && n.trim() !== s.name) run(() => api.adminUpdateStore(s.id, { name: n, location_id: s.location_id }));
-  };
-  const remove = (s) => { if (confirm(`Да изтрия ли магазин „${s.name}“?`)) run(() => api.adminDeleteStore(s.id)); };
+  async function remove(s) {
+    if (!confirm(`Да изтрия ли обект „${s.name}“?`)) return;
+    try { await api.adminDeleteStore(s.id); reload(); } catch (ex) { alert(ex.message); }
+  }
 
   return (
     <>
-      <div className="section-head" style={{ marginTop: 30 }}>
-        <div className="eyebrow">Магазини · {stores.length}</div>
+      <div className="section-head" style={{ marginTop: 30, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
+        <div className="eyebrow">Магазини и обекти · {stores.length}</div>
+        <button className="btn sm" onClick={() => { setErr(''); setEditing({ ...STORE_BLANK }); }}><Icon name="plus" size={16} /> Нов обект</button>
       </div>
-      <form className="card" style={{ padding: 16, display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'flex-end', marginBottom: 12 }} onSubmit={add}>
-        <div className="field" style={{ margin: 0, flex: '2 1 200px' }}><label>Нов магазин</label>
-          <input value={name} onChange={(e) => setName(e.target.value)} placeholder="напр. ВИТОША" /></div>
-        <div className="field" style={{ margin: 0, flex: '1 1 120px' }}><label>№ в Мистрал</label>
-          <input type="number" value={loc} onChange={(e) => setLoc(e.target.value)} /></div>
-        <button className="btn sm" disabled={!name.trim()}><Icon name="plus" size={16} /> Добави</button>
-      </form>
-      {err && <div className="err">{err}</div>}
       <div className="card" style={{ overflowX: 'auto' }}>
         <table className="table">
-          <thead><tr><th>№</th><th>Магазин</th><th>Хора</th><th></th></tr></thead>
+          <thead><tr><th>№</th><th>Обект</th><th>Вид</th><th>Фирма</th><th>Хора</th><th></th></tr></thead>
           <tbody>
             {stores.map((s) => (
               <tr key={s.id} style={{ cursor: 'default' }}>
                 <td className="muted tabnum">{s.location_id ?? '—'}</td>
-                <td><b>{s.name}</b></td>
+                <td><b>{s.name}</b>{s.address && <div className="muted" style={{ fontSize: 12.5 }}>{s.address}</div>}</td>
+                <td className="muted">{s.kind}</td>
+                <td className="muted">{s.company_name || '—'}</td>
                 <td className="tabnum">{s.people}</td>
                 <td>
                   <div className="admin-actions" style={{ justifyContent: 'flex-end' }}>
-                    <button className="icon-btn" title="Преименувай" onClick={() => rename(s)}><Icon name="edit" size={18} /></button>
+                    <button className="icon-btn" title="Редакция" onClick={() => { setErr(''); setEditing({ id: s.id, name: s.name, location_id: s.location_id ?? '', company_id: s.company_id ?? '', kind: s.kind, address: s.address || '' }); }}><Icon name="edit" size={18} /></button>
                     <button className="icon-btn danger" title="Изтрий" disabled={s.people > 0} onClick={() => remove(s)}><Icon name="trash" size={18} /></button>
                   </div>
                 </td>
@@ -56,6 +56,32 @@ function StoresSection({ stores, reload }) {
           </tbody>
         </table>
       </div>
+
+      {editing && (
+        <Modal title={editing.id ? 'Редакция на обект' : 'Нов обект'} onClose={() => setEditing(null)}>
+          <form onSubmit={save}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 16px' }}>
+              <div className="field"><label>Име</label>
+                <input value={editing.name} autoFocus onChange={(e) => setEditing({ ...editing, name: e.target.value })} placeholder="напр. ВИТОША" /></div>
+              <div className="field"><label>№ в Мистрал</label>
+                <input type="number" value={editing.location_id} onChange={(e) => setEditing({ ...editing, location_id: e.target.value })} /></div>
+              <div className="field"><label>Фирма</label>
+                <select value={editing.company_id} onChange={(e) => setEditing({ ...editing, company_id: e.target.value })}>
+                  <option value="">— без фирма —</option>
+                  {companies.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                </select></div>
+              <div className="field"><label>Вид</label>
+                <select value={editing.kind} onChange={(e) => setEditing({ ...editing, kind: e.target.value })}>
+                  {kinds.map((k) => <option key={k} value={k}>{k}</option>)}
+                </select></div>
+            </div>
+            <div className="field"><label>Адрес</label>
+              <input value={editing.address} onChange={(e) => setEditing({ ...editing, address: e.target.value })} /></div>
+            {err && <div className="err">{err}</div>}
+            <button className="btn" disabled={!editing.name.trim()}>Запази</button>
+          </form>
+        </Modal>
+      )}
     </>
   );
 }
@@ -64,13 +90,16 @@ export default function AdminUsers() {
   const { user: me } = useAuth();
   const [users, setUsers] = useState(null);
   const [stores, setStores] = useState([]);
+  const [kinds, setKinds] = useState([]);
+  const [companies, setCompanies] = useState([]);
   const [editing, setEditing] = useState(null);
   const [err, setErr] = useState('');
   const [busy, setBusy] = useState(false);
 
   function load() {
     api.adminUsers().then((d) => setUsers(d.users));
-    api.adminStores().then((d) => setStores(d.stores));
+    api.adminStores().then((d) => { setStores(d.stores); setKinds(d.kinds); });
+    api.adminCompanies().then((d) => setCompanies(d.companies));
   }
   useEffect(() => { load(); }, []);
   if (!users) return <Loading />;
@@ -143,7 +172,7 @@ export default function AdminUsers() {
         </table>
       </div>
 
-      <StoresSection stores={stores} reload={load} />
+      <StoresSection stores={stores} kinds={kinds} companies={companies} reload={load} />
 
       {editing && (
         <Modal title={editing.id ? 'Редакция на акаунт' : 'Нов акаунт'} onClose={() => setEditing(null)} wide>
@@ -164,7 +193,13 @@ export default function AdminUsers() {
             <div className="field"><label>Магазин</label>
               <select value={editing.store || ''} onChange={(e) => setEditing({ ...editing, store: e.target.value })}>
                 <option value="">— без магазин —</option>
-                {stores.map((s) => <option key={s.id} value={s.name}>{s.name}</option>)}
+                {[...new Set(stores.map((s) => s.company_name || ''))]
+                  .sort((a, b) => (a === '') - (b === '') || a.localeCompare(b, 'bg'))
+                  .map((co) => (
+                    <optgroup key={co || 'none'} label={co || 'Без фирма'}>
+                      {stores.filter((s) => (s.company_name || '') === co).map((s) => <option key={s.id} value={s.name}>{s.name}</option>)}
+                    </optgroup>
+                  ))}
               </select></div>
             <div className="field"><label>Длъжност</label>
               <input value={editing.position || ''} onChange={(e) => setEditing({ ...editing, position: e.target.value })} /></div>

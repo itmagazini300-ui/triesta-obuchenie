@@ -48,7 +48,7 @@ function RequestCard({ r, mentors, onDone }) {
           <option value="">— избери ментор —</option>
           {mentorOptions(mentors, r.disc_result).map((m) => (
             <option key={m.id} value={m.id}>
-              {m.name} · {m.mentor_style || '?'} · {m.store || 'без магазин'} · обучава {m.active}
+              {m.name} · {m.mentor_style || '?'} · {m.store || 'без магазин'}{m.company ? ` (${m.company})` : ''} · обучава {m.active}
             </option>
           ))}
         </select>
