@@ -20,6 +20,7 @@ import DiscTest from './pages/DiscTest.jsx';
 import Onboarding from './pages/Onboarding.jsx';
 import Candidates from './pages/Candidates.jsx';
 import Requests from './pages/Requests.jsx';
+import Companies from './pages/Companies.jsx';
 import Apply from './pages/Apply.jsx';
 import DiscStart from './pages/DiscStart.jsx';
 import Videos from './pages/Videos.jsx';
@@ -62,6 +63,7 @@ export default function App() {
           <Route path="/onboarding" element={<Onboarding />} />
           <Route path="/manager" element={<ManagerHome />} />
           <Route path="/manager/employee/:id" element={<ManagerEmployee />} />
+          <Route path="/companies" element={<Companies />} />
           <Route path="/candidates" element={<Candidates />} />
           <Route path="/requests" element={<Requests />} />
           <Route path="/mentors" element={<Mentors />} />
@@ -110,6 +112,7 @@ function Layout() {
           {isManager ? (
             <>
               <NavLink to="/manager" className={({ isActive }) => isActive ? 'active' : ''}>Табло</NavLink>
+              <NavLink to="/companies" className={({ isActive }) => isActive ? 'active' : ''}>Фирми</NavLink>
               <NavLink to="/mentors" className={({ isActive }) => isActive ? 'active' : ''}>Ментори</NavLink>
               <NavLink to="/candidates" className={({ isActive }) => isActive ? 'active' : ''}>Кандидати</NavLink>
               <NavLink to="/requests" className={({ isActive }) => isActive ? 'active' : ''}>
